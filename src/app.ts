@@ -5,7 +5,6 @@ import routes from "./routes";
 
 const app = express();
 
-// CORS
 app.use(cors());
 app.options("*", cors());
 
