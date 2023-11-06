@@ -1,12 +1,12 @@
 import express from "express";
-import exampleRoute from "./example.route";
+import eventRoutes from "./event";
 
 const routes = express.Router();
 
 const defaultRoutes = [
 	{
-		path: "/example",
-		route: exampleRoute,
+		path: "/event",
+		route: eventRoutes,
 	},
 ];
 
