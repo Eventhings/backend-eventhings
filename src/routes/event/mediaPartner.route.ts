@@ -2,6 +2,7 @@ import express, { Request } from "express";
 import {
 	createMediaPartner,
 	getAllMediaPartner,
+	getMediaPartnerById,
 } from "../../controllers/events/mediaPartner.controller";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../../utils";
 
@@ -23,13 +24,46 @@ mediaPartnerRoute.get(
 				},
 				message: "Get all media partner successfully",
 			};
-		} catch {
+		} catch (err) {
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
 				details: "",
 			});
 
+			if (err) {
+				throw err;
+			}
+
 			throw apiError;
+		}
+	})
+);
+
+mediaPartnerRoute.get(
+	"/:id",
+	eventhingsResponse(async (req: Request) => {
+		try {
+			const mp_id = req.params.id;
+			console.log(mp_id);
+			const res = await getMediaPartnerById({ id: mp_id });
+			return {
+				status: 200,
+				data: {
+					...res,
+				},
+				message: `Get media partner with id ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+
+			if (err) {
+				throw err;
+			}
+
+			return apiError;
 		}
 	})
 );

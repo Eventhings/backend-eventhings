@@ -1,5 +1,11 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+drop table if exists MEDIA_PARTNER CASCADE;
+drop table if exists MEDIA_PARTNER_DETAIL CASCADE;
+drop table if exists MEDIA_PARTNER_PACKAGE CASCADE;
+drop table if exists MEDIA_PARTNER_SOCIAL_MEDIA CASCADE;
+drop table if exists MEDIA_PARTNER_REVIEW CASCADE;
+
 CREATE TABLE MEDIA_PARTNER (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     created_by VARCHAR(255),
@@ -14,32 +20,32 @@ CREATE TABLE MEDIA_PARTNER (
     is_active BOOLEAN DEFAULT true
 );
 
+CREATE TABLE MEDIA_PARTNER_DETAIL (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    mp_id UUID REFERENCES media_partner(id) NOT NULL,
+    description VARCHAR(255),
+    value VARCHAR(255)
+);
+
 CREATE TABLE MEDIA_PARTNER_PACKAGE (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    mp_id VARCHAR(255) REFERENCES media_partner(id) NOT NULL,
+    mp_id UUID REFERENCES media_partner(id) NOT NULL,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255),
-    price FLOAT NOT NULL,
-)
+    price FLOAT NOT NULL
+);
 
 CREATE TABLE MEDIA_PARTNER_SOCIAL_MEDIA (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    mp_id VARCHAR(255) REFERENCES media_partner(id) NOT NULL,
+    mp_id UUID REFERENCES media_partner(id) NOT NULL,
     social_media VARCHAR(255) NOT NULL,
-    link VARCHAR(255) NOT NULL,
-)
+    link VARCHAR(255) NOT NULL
+);
 
-CREATE TABLE MEDIA_PARTNER_DETAIL (
+CREATE TABLE MEDIA_PARTNER_REVIEW (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    mp_id VARCHAR(255) REFERENCES media_partner(id) NOT NULL,
-    description VARCHAR(255),
-    value VARCHAR(255)
-)
-
-CREATE TABLE MEDIA_PARTNER_DETAIL (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    mp_id VARCHAR(255) REFERENCES media_partner(id) NOT NULL,
+    mp_id UUID REFERENCES media_partner(id) NOT NULL,
     user_id VARCHAR(255) NOT NULL,
     review VARCHAR(255),
     rating INTEGER
-)
+);
