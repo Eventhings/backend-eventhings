@@ -36,7 +36,6 @@ mediaPartnerRoute.get(
 
 mediaPartnerRoute.post(
 	"/",
-
 	eventhingsResponse(async (req: Request) => {
 		try {
 			const body = await req.body;
