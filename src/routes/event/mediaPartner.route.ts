@@ -1,6 +1,7 @@
 import express, { Request } from "express";
 import {
 	createMediaPartner,
+	deleteMediaPartner,
 	getAllMediaPartner,
 	getMediaPartnerById,
 } from "../../controllers/events/mediaPartner.controller";
@@ -30,8 +31,8 @@ mediaPartnerRoute.get(
 				details: "",
 			});
 
-			if (err) {
-				throw err;
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
 			}
 
 			throw apiError;
@@ -44,7 +45,6 @@ mediaPartnerRoute.get(
 	eventhingsResponse(async (req: Request) => {
 		try {
 			const mp_id = req.params.id;
-			console.log(mp_id);
 			const res = await getMediaPartnerById({ id: mp_id });
 			return {
 				status: 200,
@@ -59,8 +59,8 @@ mediaPartnerRoute.get(
 				details: "",
 			});
 
-			if (err) {
-				throw err;
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
 			}
 
 			return apiError;
@@ -84,12 +84,38 @@ mediaPartnerRoute.post(
 				},
 				message: "Created media partner successfully",
 			};
-		} catch {
+		} catch (err) {
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
 				details: "",
 			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
 
+mediaPartnerRoute.delete(
+	"/:id",
+	eventhingsResponse(async (req: Request) => {
+		try {
+			const mp_id = req.params.id;
+			await deleteMediaPartner({ id: mp_id });
+			return {
+				status: 200,
+				data: null,
+				message: `Deleted media partner with id ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
 			throw apiError;
 		}
 	})

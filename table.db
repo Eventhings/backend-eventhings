@@ -22,14 +22,22 @@ CREATE TABLE MEDIA_PARTNER (
 
 CREATE TABLE MEDIA_PARTNER_DETAIL (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    mp_id UUID REFERENCES media_partner(id) NOT NULL,
+    mp_id UUID NOT NULL,
+	CONSTRAINT fk_mp
+      FOREIGN KEY(mp_id) 
+	  REFERENCES media_partner(id)
+	  ON DELETE cascade,
     description VARCHAR(255),
     value VARCHAR(255)
 );
 
 CREATE TABLE MEDIA_PARTNER_PACKAGE (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    mp_id UUID REFERENCES media_partner(id) NOT NULL,
+    mp_id UUID NOT NULL,
+	CONSTRAINT fk_mp
+      FOREIGN KEY(mp_id) 
+	  REFERENCES media_partner(id)
+	  ON DELETE cascade,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255),
     price FLOAT NOT NULL
@@ -37,14 +45,22 @@ CREATE TABLE MEDIA_PARTNER_PACKAGE (
 
 CREATE TABLE MEDIA_PARTNER_SOCIAL_MEDIA (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    mp_id UUID REFERENCES media_partner(id) NOT NULL,
+    mp_id UUID NOT NULL,
+	CONSTRAINT fk_mp
+      FOREIGN KEY(mp_id) 
+	  REFERENCES media_partner(id)
+	  ON DELETE cascade,
     social_media VARCHAR(255) NOT NULL,
     link VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE MEDIA_PARTNER_REVIEW (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    mp_id UUID REFERENCES media_partner(id) NOT NULL,
+    mp_id UUID NOT NULL,
+	CONSTRAINT fk_mp
+      FOREIGN KEY(mp_id) 
+	  REFERENCES media_partner(id)
+	  ON DELETE cascade,
     user_id VARCHAR(255) NOT NULL,
     review VARCHAR(255),
     rating INTEGER
