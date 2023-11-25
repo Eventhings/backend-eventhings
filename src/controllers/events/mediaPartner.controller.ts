@@ -1,8 +1,8 @@
 import { dbQuery } from "../../db";
 import {
-	CreateMediaPartnerBody,
 	GetAllMediaPartnerData,
-} from "../../models/events";
+	UpdateCreateMediaPartnerBody,
+} from "../../models";
 
 export const getAllMediaPartner = async ({
 	limit,
@@ -53,7 +53,7 @@ export const getMediaPartnerById = async ({ id }: { id: string }) => {
 export const createMediaPartner = async ({
 	data,
 }: {
-	data: CreateMediaPartnerBody;
+	data: UpdateCreateMediaPartnerBody;
 }) => {
 	const media_partner_results = await dbQuery(
 		`INSERT INTO MEDIA_PARTNER (name, field, created_by) VALUES ($1, $2, $3) RETURNING id;`,
@@ -84,10 +84,73 @@ export const createMediaPartner = async ({
 		);
 	}
 
-	return data;
+	return { id: mp_id, data: data };
 };
 
 export const deleteMediaPartner = async ({ id }: { id: string }) => {
 	await dbQuery(`DELETE FROM MEDIA_PARTNER WHERE id = '${id}'`);
+	return null;
+};
+
+export const updateMediaPartner = async ({
+	id,
+	data,
+}: {
+	id: string;
+	data: UpdateCreateMediaPartnerBody;
+}) => {
+	await dbQuery(
+		`
+		UPDATE MEDIA_PARTNER
+		SET name = $1, field = $2, last_updated = $3
+		WHERE id = $4;
+	`,
+		[data.name, data.field, new Date(), id]
+	);
+
+	await dbQuery(
+		`UPDATE MEDIA_PARTNER_DETAIL
+		SET description = $1, value = $2
+		WHERE mp_id = $3`,
+		[data.description, data.value, id]
+	);
+
+	for (const val of data.packages || []) {
+		await dbQuery(
+			`
+			UPDATE MEDIA_PARTNER_PACKAGE
+			SET name = $1, description = $2, price = $3
+			WHERE mp_id = $4;`,
+			[val.name, val.description, val.price, id]
+		);
+	}
+
+	for (const val of data.social_media || []) {
+		await dbQuery(
+			`
+			UPDATE MEDIA_PARTNER_SOCIAL_MEDIA
+			SET social_media = $1, link = $2
+			WHERE mp_id = $3;`,
+			[val.name, val.link, id]
+		);
+	}
+
+	return data;
+};
+
+export const approveMediaPartner = async ({
+	id,
+	is_approved,
+}: {
+	id: string;
+	is_approved: boolean;
+}) => {
+	await dbQuery(
+		`UPDATE MEDIA_PARTNER
+		SET is_approved = $1
+		WHERE id = $2`,
+		[is_approved, id]
+	);
+
 	return null;
 };

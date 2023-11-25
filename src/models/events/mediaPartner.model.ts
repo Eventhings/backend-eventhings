@@ -28,7 +28,7 @@ export type GetMediaPartnerDetailData = {
 	reviews: Reviews[];
 } & GetAllMediaPartnerData;
 
-export type CreateMediaPartnerBody = Exclude<
+export type UpdateCreateMediaPartnerBody = Exclude<
 	GetMediaPartnerDetailData,
 	[
 		"created_by",
