@@ -1,6 +1,7 @@
 import express, { Request } from "express";
 
 import {
+	activateMediaPartner,
 	approveMediaPartner,
 	createMediaPartner,
 	deleteMediaPartner,
@@ -108,6 +109,70 @@ mediaPartnerRoute.post(
 	})
 );
 
+mediaPartnerRoute.post(
+	"/:id/approve",
+	eventhingsResponse(async (req: Request) => {
+		try {
+			const mp_id = req.params.id;
+			const body = await req.body;
+
+			const data = await approveMediaPartner({
+				id: mp_id,
+				is_approved: body.is_approved ?? true,
+			});
+
+			return {
+				status: 200,
+				data: data,
+				message: `${
+					body.is_approved ?? true ? "Approved" : "Unapproved"
+				} media partner with id ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
+mediaPartnerRoute.post(
+	"/:id/activate",
+	eventhingsResponse(async (req: Request) => {
+		try {
+			const mp_id = req.params.id;
+			const body = await req.body;
+
+			const data = await activateMediaPartner({
+				id: mp_id,
+				is_active: body.is_active ?? true,
+			});
+
+			return {
+				status: 200,
+				data: data,
+				message: `${
+					body.is_active ?? true ? "Activated" : "Deactivated"
+				} media partner with id ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
 mediaPartnerRoute.delete(
 	"/:id",
 	eventhingsResponse(async (req: Request) => {
@@ -146,38 +211,6 @@ mediaPartnerRoute.patch(
 				status: 200,
 				data: data,
 				message: `Update media partner with id ${mp_id} successfully`,
-			};
-		} catch (err) {
-			let apiError = new ApiError({
-				code: ErrorCodes.internalServerErrorCode,
-				details: "",
-			});
-			if ((err as ApiError).code) {
-				apiError = err as ApiError;
-			}
-			throw apiError;
-		}
-	})
-);
-
-mediaPartnerRoute.post(
-	"/:id/approve",
-	eventhingsResponse(async (req: Request) => {
-		try {
-			const mp_id = req.params.id;
-			const body = await req.body;
-
-			const data = await approveMediaPartner({
-				id: mp_id,
-				is_approved: body.is_approved ?? true,
-			});
-
-			return {
-				status: 200,
-				data: data,
-				message: `${
-					body.is_approved ?? true ? "Approved" : "Unapproved"
-				} media partner with id ${mp_id} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({

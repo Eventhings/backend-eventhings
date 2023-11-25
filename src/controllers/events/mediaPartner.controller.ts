@@ -154,3 +154,20 @@ export const approveMediaPartner = async ({
 
 	return null;
 };
+
+export const activateMediaPartner = async ({
+	id,
+	is_active,
+}: {
+	id: string;
+	is_active: boolean;
+}) => {
+	await dbQuery(
+		`UPDATE MEDIA_PARTNER
+		SET is_active = $1
+		WHERE id = $2`,
+		[is_active, id]
+	);
+
+	return null;
+};
