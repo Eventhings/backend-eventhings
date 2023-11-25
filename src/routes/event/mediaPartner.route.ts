@@ -19,7 +19,7 @@ mediaPartnerRoute.get(
 				page: parseInt((params.page ?? 0) as string),
 			});
 			return {
-				status: 200,
+				status: 201,
 				data: {
 					...res,
 				},
@@ -46,8 +46,16 @@ mediaPartnerRoute.get(
 		try {
 			const mp_id = req.params.id;
 			const res = await getMediaPartnerById({ id: mp_id });
+
+			if (!res.id) {
+				throw new ApiError({
+					code: ErrorCodes.notFoundErrorCode,
+					message: `Media partner with id ${mp_id} not found`,
+				});
+			}
+
 			return {
-				status: 200,
+				status: 201,
 				data: {
 					...res,
 				},
@@ -87,7 +95,7 @@ mediaPartnerRoute.post(
 		} catch (err) {
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
-				details: "",
+				details: "Failed to craete media partner",
 			});
 			if ((err as ApiError).code) {
 				apiError = err as ApiError;
@@ -103,6 +111,7 @@ mediaPartnerRoute.delete(
 		try {
 			const mp_id = req.params.id;
 			await deleteMediaPartner({ id: mp_id });
+
 			return {
 				status: 200,
 				data: null,
