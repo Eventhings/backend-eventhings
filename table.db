@@ -1,9 +1,16 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+drop table if exists MEDIA_PARTNER CASCADE;
+drop table if exists MEDIA_PARTNER_DETAIL CASCADE;
+drop table if exists MEDIA_PARTNER_PACKAGE CASCADE;
+drop table if exists MEDIA_PARTNER_SOCIAL_MEDIA CASCADE;
+drop table if exists MEDIA_PARTNER_REVIEW CASCADE;
+
 CREATE TABLE MEDIA_PARTNER (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     created_by VARCHAR(255),
     approved_by VARCHAR(255),
+    logo_url VARCHAR(255),
     name VARCHAR(255) NOT NULL,
     last_updated TIMESTAMP DEFAULT current_timestamp,
     updated_by VARCHAR(255),
@@ -13,30 +20,48 @@ CREATE TABLE MEDIA_PARTNER (
     is_active BOOLEAN DEFAULT true
 );
 
-CREATE TABLE SPONSORSHIP (
+CREATE TABLE MEDIA_PARTNER_DETAIL (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    created_by VARCHAR(255),
-    approved_by VARCHAR(255),
-    name VARCHAR(255) NOT NULL,
-    last_updated TIMESTAMP DEFAULT current_timestamp,
-    updated_by VARCHAR(255),
-    created_at TIMESTAMP DEFAULT current_timestamp,
-    field VARCHAR(255) NOT NULL,
-    is_approved BOOLEAN DEFAULT false,
-    is_active BOOLEAN DEFAULT true
+    mp_id UUID NOT NULL,
+	CONSTRAINT fk_mp
+      FOREIGN KEY(mp_id) 
+	  REFERENCES media_partner(id)
+	  ON DELETE cascade,
+    description VARCHAR(255),
+    value VARCHAR(255)
 );
 
-CREATE TABLE RENTALS (
+CREATE TABLE MEDIA_PARTNER_PACKAGE (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    created_by VARCHAR(255),
-    approved_by VARCHAR(255),
+    mp_id UUID NOT NULL,
+	CONSTRAINT fk_mp
+      FOREIGN KEY(mp_id) 
+	  REFERENCES media_partner(id)
+	  ON DELETE cascade,
     name VARCHAR(255) NOT NULL,
-    last_updated TIMESTAMP DEFAULT current_timestamp,
-    updated_by VARCHAR(255),
-    created_at TIMESTAMP DEFAULT current_timestamp,
-    field VARCHAR(255) NOT NULL,
-    is_approved BOOLEAN DEFAULT false,
-    is_active BOOLEAN DEFAULT true
+    description VARCHAR(255),
+    price FLOAT NOT NULL
 );
 
+CREATE TABLE MEDIA_PARTNER_SOCIAL_MEDIA (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    mp_id UUID NOT NULL,
+	CONSTRAINT fk_mp
+      FOREIGN KEY(mp_id) 
+	  REFERENCES media_partner(id)
+	  ON DELETE cascade,
+    social_media VARCHAR(255) NOT NULL,
+    link VARCHAR(255) NOT NULL
+);
 
+CREATE TABLE MEDIA_PARTNER_REVIEW (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    mp_id UUID NOT NULL,
+	CONSTRAINT fk_mp
+      FOREIGN KEY(mp_id) 
+	  REFERENCES media_partner(id)
+	  ON DELETE cascade,
+    user_id VARCHAR(255) NOT NULL,
+    review VARCHAR(255),
+    rating INTEGER
+);
