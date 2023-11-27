@@ -1,11 +1,11 @@
-// Import the functions you need from the SDKs you need
+import { env } from "process";
 
 export const firebaseConfig = {
-	apiKey: "AIzaSyCMlO6N9ONLAq2ExHj79RrsgPP-hgyvUG8",
-	authDomain: "practice-capstone.firebaseapp.com",
-	projectId: "practice-capstone",
-	storageBucket: "practice-capstone.appspot.com",
-	messagingSenderId: "680763637495",
-	appId: "1:680763637495:web:0f33a76ecafa74dbb29df2",
-	measurementId: "G-3CQNBMQ4LM",
+	apiKey: env.FIREBASE_API_KEY,
+	authDomain: env.FIREBASE_AUTH_DOMAIN,
+	projectId: env.FIREBASE_PROJECT_ID,
+	storageBucket: env.FIREBASE_PROJECT_BUCKET,
+	messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID,
+	appId: env.FIREBASE_APP_ID,
+	measurementId: env.FIREBASE_MEASUREMENT_ID,
 };

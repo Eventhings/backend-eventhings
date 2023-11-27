@@ -4,6 +4,9 @@ import {
 	signInWithEmailAndPassword,
 } from "firebase/auth";
 
+import * as admin from "firebase-admin";
+import { UserRole } from "../models";
+
 export const registerUser = async ({
 	email,
 	password,
@@ -18,6 +21,10 @@ export const registerUser = async ({
 			email,
 			password
 		);
+
+		await admin
+			.auth()
+			.setCustomUserClaims(providerId ?? "", { role: UserRole.STANDARD });
 
 		return providerId;
 	} catch (err) {
