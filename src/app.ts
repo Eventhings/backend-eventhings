@@ -1,13 +1,14 @@
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
-import { initializeApp } from "firebase/app";
-import { firebaseConfig } from "./firebase";
+
+import { initFirebase } from "./firebase";
 import errorHandler from "./middlewares/errorHandlers";
 import routes from "./routes";
 
 const app = express();
-initializeApp(firebaseConfig);
+
+initFirebase();
 
 app.use(cors());
 app.options("*", cors());

@@ -19,14 +19,13 @@ userRoutes.post(
 			await registerUser({ email, password });
 
 			return {
-				status: 201,
+				status: 200,
 				data: { email: email },
 				message: `registered ${email} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
-				details: "",
 			});
 
 			if ((err as ApiError).code) {
@@ -53,14 +52,13 @@ userRoutes.post(
 			const creds = await loginUser({ email, password });
 
 			return {
-				status: 201,
+				status: 200,
 				data: { ...creds },
 				message: `user ${email} logged in successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
-				details: "",
 			});
 
 			if ((err as ApiError).code) {

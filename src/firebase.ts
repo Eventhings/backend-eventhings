@@ -1,3 +1,5 @@
+import * as admin from "firebase-admin";
+import { initializeApp } from "firebase/app";
 import { env } from "process";
 
 export const firebaseConfig = {
@@ -8,4 +10,9 @@ export const firebaseConfig = {
 	messagingSenderId: env.FIREBASE_MESSAGING_SENDER_ID,
 	appId: env.FIREBASE_APP_ID,
 	measurementId: env.FIREBASE_MEASUREMENT_ID,
+};
+
+export const initFirebase = () => {
+	initializeApp(firebaseConfig);
+	admin.initializeApp(firebaseConfig);
 };

@@ -1,4 +1,4 @@
-import express, { Request } from "express";
+import express, { Request, Response } from "express";
 
 import {
 	activateMediaPartner,
@@ -9,6 +9,7 @@ import {
 	getMediaPartnerById,
 	updateMediaPartner,
 } from "../../controllers";
+import { isAuthenticated } from "../../middlewares";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../../utils";
 
 const mediaPartnerRoute = express.Router();
@@ -82,17 +83,19 @@ mediaPartnerRoute.get(
 
 mediaPartnerRoute.post(
 	"/",
-	eventhingsResponse(async (req: Request) => {
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
 		try {
 			const body = await req.body;
-			const res = await createMediaPartner({
-				data: body as any,
+			const data = await createMediaPartner({
+				data: body,
+				created_by: res.locals.uid,
 			});
 
 			return {
 				status: 200,
 				data: {
-					...res,
+					...data,
 				},
 				message: "Created media partner successfully",
 			};
@@ -111,6 +114,7 @@ mediaPartnerRoute.post(
 
 mediaPartnerRoute.post(
 	"/:id/approve",
+	isAuthenticated,
 	eventhingsResponse(async (req: Request) => {
 		try {
 			const mp_id = req.params.id;
@@ -143,6 +147,7 @@ mediaPartnerRoute.post(
 
 mediaPartnerRoute.post(
 	"/:id/activate",
+	isAuthenticated,
 	eventhingsResponse(async (req: Request) => {
 		try {
 			const mp_id = req.params.id;
@@ -175,6 +180,7 @@ mediaPartnerRoute.post(
 
 mediaPartnerRoute.delete(
 	"/:id",
+	isAuthenticated,
 	eventhingsResponse(async (req: Request) => {
 		try {
 			const mp_id = req.params.id;
@@ -200,6 +206,7 @@ mediaPartnerRoute.delete(
 
 mediaPartnerRoute.patch(
 	"/:id",
+	isAuthenticated,
 	eventhingsResponse(async (req: Request) => {
 		try {
 			const mp_id = req.params.id;
