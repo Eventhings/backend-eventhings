@@ -52,12 +52,14 @@ export const getMediaPartnerById = async ({ id }: { id: string }) => {
 
 export const createMediaPartner = async ({
 	data,
+	created_by,
 }: {
 	data: UpdateCreateMediaPartnerBody;
+	created_by: string;
 }) => {
 	const media_partner_results = await dbQuery(
 		`INSERT INTO MEDIA_PARTNER (name, field, created_by) VALUES ($1, $2, $3) RETURNING id;`,
-		[data.name, data.field, "testing"]
+		[data.name, data.field, created_by]
 	);
 
 	const mp_id = media_partner_results.rows[0]?.id;

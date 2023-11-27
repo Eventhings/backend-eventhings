@@ -8,3 +8,9 @@ export type Reviews = {
 	rating: number;
 	review: string;
 };
+
+export enum UserRole {
+	ADMIN = "admin",
+	STANDARD = "standard",
+	BUSINESS = "business",
+}
