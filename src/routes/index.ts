@@ -1,5 +1,6 @@
 import express from "express";
 import eventRoutes from "./event";
+import { userRoutes } from "./user.route";
 
 const routes = express.Router();
 
@@ -7,6 +8,10 @@ const defaultRoutes = [
 	{
 		path: "/event",
 		route: eventRoutes,
+	},
+	{
+		path: "/user",
+		route: userRoutes,
 	},
 ];
 
