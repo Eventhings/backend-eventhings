@@ -44,7 +44,6 @@ export const isAuthenticated = async (
 		};
 		return next();
 	} catch (err) {
-		console.log("test");
 		let apiError = new ApiError({
 			code: ErrorCodes.internalServerErrorCode,
 			details: "",
@@ -55,6 +54,5 @@ export const isAuthenticated = async (
 		}
 
 		next(apiError);
-		return;
 	}
 };

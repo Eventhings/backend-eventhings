@@ -16,7 +16,7 @@ export const registerUser = async ({
 }) => {
 	try {
 		const auth = getAuth();
-		const { providerId } = await createUserWithEmailAndPassword(
+		const { user } = await createUserWithEmailAndPassword(
 			auth,
 			email,
 			password
@@ -24,9 +24,9 @@ export const registerUser = async ({
 
 		await admin
 			.auth()
-			.setCustomUserClaims(providerId ?? "", { role: UserRole.STANDARD });
+			.setCustomUserClaims(user.uid ?? "", { role: UserRole.STANDARD });
 
-		return providerId;
+		return user;
 	} catch (err) {
 		throw err;
 	}
@@ -48,6 +48,24 @@ export const loginUser = async ({
 			name: creds.user.displayName,
 			email: creds.user.email,
 			access_token,
+		};
+	} catch (err) {
+		throw err;
+	}
+};
+
+export const getUserMe = async ({ uid }: { uid: string }) => {
+	try {
+		const user_data = await admin.auth().getUser(uid);
+		return {
+			id: user_data.uid ?? null,
+			email: user_data.email ?? null,
+			display_name: user_data.displayName ?? null,
+			photo_url: user_data.photoURL ?? null,
+			phone_number: user_data.phoneNumber ?? null,
+			created_at: new Date(user_data.metadata.creationTime) ?? null,
+			last_sign_in: new Date(user_data.metadata.lastSignInTime) ?? null,
+			role: user_data.customClaims?.role ?? null,
 		};
 	} catch (err) {
 		throw err;
