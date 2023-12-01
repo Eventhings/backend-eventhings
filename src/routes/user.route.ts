@@ -1,6 +1,12 @@
 import express, { Request, Response } from "express";
-import { getUserMe, loginUser, registerUser } from "../controllers";
-import { isAuthenticated } from "../middlewares";
+import {
+	getAllUser,
+	getUserMe,
+	loginUser,
+	refreshUserToken,
+	registerUser,
+} from "../controllers";
+import { isAuthenticated, isAuthorized } from "../middlewares";
 import { UserRole } from "../models";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../utils";
 
@@ -23,6 +29,36 @@ userRoutes.get(
 				status: 200,
 				data: { ...user_data },
 				message: `Get user ${uid} succesfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+			});
+
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+
+			return apiError;
+		}
+	})
+);
+
+userRoutes.get(
+	"/all",
+	isAuthenticated,
+	isAuthorized({ allowedRoles: [UserRole.ADMIN] }),
+	eventhingsResponse(async (req: Request, _res: Response) => {
+		try {
+			const { total } = req.params;
+			const user_list = await getAllUser({
+				total: total as unknown as number,
+			});
+
+			return {
+				status: 200,
+				data: { users: user_list },
+				message: `Get all user succesfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({
@@ -122,6 +158,38 @@ userRoutes.post(
 				status: 200,
 				data: { email: email },
 				message: `registered ${email} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+			});
+
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+
+			return apiError;
+		}
+	})
+);
+
+userRoutes.post(
+	"/refresh-token",
+	eventhingsResponse(async (req: Request) => {
+		try {
+			const { refresh_token } = req.body;
+			if (!refresh_token) {
+				throw new ApiError({
+					code: ErrorCodes.forbiddenErrorCode,
+					details: "No refresh token found",
+				});
+			}
+			const new_token = await refreshUserToken({ refresh_token });
+
+			return {
+				status: 200,
+				data: { refresh_token: new_token },
+				message: `refreshed token successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({
