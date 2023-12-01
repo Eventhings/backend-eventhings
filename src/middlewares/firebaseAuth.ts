@@ -75,6 +75,11 @@ export const isAuthorized = ({
 
 		if (allowedRoles?.includes(role)) return next();
 
-		return res.status(403).send();
+		return next(
+			new ApiError({
+				code: ErrorCodes.unauthorizedErrorCode,
+				details: "Unauthorized",
+			})
+		);
 	};
 };

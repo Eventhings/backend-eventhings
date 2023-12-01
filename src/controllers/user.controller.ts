@@ -10,9 +10,11 @@ import { UserRole } from "../models";
 export const registerUser = async ({
 	email,
 	password,
+	role,
 }: {
 	email: string;
 	password: string;
+	role?: UserRole;
 }) => {
 	try {
 		const auth = getAuth();
@@ -24,7 +26,9 @@ export const registerUser = async ({
 
 		await admin
 			.auth()
-			.setCustomUserClaims(user.uid ?? "", { role: UserRole.STANDARD });
+			.setCustomUserClaims(user.uid ?? "", {
+				role: role ? role : UserRole.STANDARD,
+			});
 
 		return user;
 	} catch (err) {
