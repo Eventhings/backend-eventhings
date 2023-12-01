@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import * as admin from "firebase-admin";
+import { UserRole } from "../models";
 import { ApiError, ErrorCodes } from "../utils";
 
 export const isAuthenticated = async (
@@ -44,7 +45,6 @@ export const isAuthenticated = async (
 		};
 		return next();
 	} catch (err) {
-		console.log("test");
 		let apiError = new ApiError({
 			code: ErrorCodes.internalServerErrorCode,
 			details: "",
@@ -55,6 +55,31 @@ export const isAuthenticated = async (
 		}
 
 		next(apiError);
-		return;
 	}
+};
+
+export const isAuthorized = ({
+	allowedRoles,
+	allowSelf,
+}: {
+	allowedRoles?: UserRole[];
+	allowSelf?: boolean;
+}) => {
+	return (req: Request, res: Response, next: Function) => {
+		const { role, uid } = res.locals;
+		const { id } = req.params;
+
+		if (allowSelf && id && uid === id) return next();
+
+		if (!role) return res.status(403).send();
+
+		if (allowedRoles?.includes(role)) return next();
+
+		return next(
+			new ApiError({
+				code: ErrorCodes.unauthorizedErrorCode,
+				details: "Unauthorized",
+			})
+		);
+	};
 };

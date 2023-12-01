@@ -9,7 +9,8 @@ import {
 	getMediaPartnerById,
 	updateMediaPartner,
 } from "../../controllers";
-import { isAuthenticated } from "../../middlewares";
+import { isAuthenticated, isAuthorized } from "../../middlewares";
+import { UserRole } from "../../models";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../../utils";
 
 const mediaPartnerRoute = express.Router();
@@ -115,6 +116,7 @@ mediaPartnerRoute.post(
 mediaPartnerRoute.post(
 	"/:id/approve",
 	isAuthenticated,
+	isAuthorized({ allowedRoles: [UserRole.ADMIN] }),
 	eventhingsResponse(async (req: Request) => {
 		try {
 			const mp_id = req.params.id;
