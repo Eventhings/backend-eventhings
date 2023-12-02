@@ -7,6 +7,6 @@ const pool = new Pool({
 	password: env.DB_PASSWORD,
 	host: env.DB_HOST,
 	port: env.DB_PORT,
-	database: env.DB_DATABASE,
+	database: env.DB_DATABASE_DEV,
 });
 export const dbQuery = (text: string, params?: any) => pool.query(text, params);
