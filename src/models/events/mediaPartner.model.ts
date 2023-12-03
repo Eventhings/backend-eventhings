@@ -39,4 +39,4 @@ export type UpdateCreateMediaPartnerBody = Exclude<
 		"is_approved",
 		"rating"
 	]
->;
+> & { logo: string };

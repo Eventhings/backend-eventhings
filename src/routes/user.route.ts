@@ -51,13 +51,13 @@ userRoutes.get(
 	eventhingsResponse(async (req: Request, _res: Response) => {
 		try {
 			const { total } = req.params;
-			const user_list = await getAllUser({
+			const userList = await getAllUser({
 				total: total as unknown as number,
 			});
 
 			return {
 				status: 200,
-				data: { users: user_list },
+				data: { users: userList },
 				message: `Get all user succesfully`,
 			};
 		} catch (err) {

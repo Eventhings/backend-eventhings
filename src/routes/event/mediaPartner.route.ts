@@ -25,7 +25,7 @@ mediaPartnerRoute.get(
 				page: parseInt((params.page ?? 0) as string),
 			});
 			return {
-				status: 201,
+				status: 200,
 				data: {
 					...res,
 				},
@@ -61,7 +61,7 @@ mediaPartnerRoute.get(
 			}
 
 			return {
-				status: 201,
+				status: 200,
 				data: {
 					...res,
 				},
