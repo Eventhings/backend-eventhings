@@ -1,4 +1,5 @@
 import { dbQuery } from "../../db";
+import { uploadFile } from "../../gcloud";
 import {
 	GetAllMediaPartnerData,
 	UpdateCreateMediaPartnerBody,
@@ -57,9 +58,16 @@ export const createMediaPartner = async ({
 	data: UpdateCreateMediaPartnerBody;
 	created_by: string;
 }) => {
+	const logo_url = await uploadFile({
+		fileName: `${new Date().getTime().toString(36)}.jpg`,
+		base64: data.logo,
+		folderName: "user-profile",
+		isPublic: true,
+	});
+
 	const media_partner_results = await dbQuery(
-		`INSERT INTO MEDIA_PARTNER (name, field, created_by) VALUES ($1, $2, $3) RETURNING id;`,
-		[data.name, data.field, created_by]
+		`INSERT INTO MEDIA_PARTNER (name, field, created_by, logo_url) VALUES ($1, $2, $3, $4) RETURNING id;`,
+		[data.name, data.field, created_by, logo_url]
 	);
 
 	const mp_id = media_partner_results.rows[0]?.id;
@@ -86,7 +94,9 @@ export const createMediaPartner = async ({
 		);
 	}
 
-	return { id: mp_id, data: data };
+	const { logo, ...output } = data;
+
+	return { id: mp_id, data: { logo_url: logo_url, ...output } };
 };
 
 export const deleteMediaPartner = async ({ id }: { id: string }) => {
