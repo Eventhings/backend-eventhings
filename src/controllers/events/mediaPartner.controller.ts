@@ -51,6 +51,34 @@ export const getMediaPartnerById = async ({ id }: { id: string }) => {
 	};
 };
 
+export const getMediaPartnerByCreator = async ({
+	creator_id,
+	limit,
+	page,
+}: {
+	creator_id: string;
+	limit: number;
+	page: number;
+}) => {
+	const res = await dbQuery(
+		`SELECT * FROM media_partner WHERE created_by = '${creator_id}' LIMIT ${limit} OFFSET ${
+			page * limit
+		}`
+	);
+	const total = await dbQuery(
+		`SELECT COUNT(*) FROM media_partner WHERE created_by = '${creator_id}'`
+	);
+	console.log(res);
+	const total_page = Math.ceil(total.rows[0].count / limit);
+	return {
+		total: parseInt(total.rows[0].count ?? 0),
+		limit,
+		page,
+		total_page,
+		data: res.rows ?? ([] as GetAllMediaPartnerData[]),
+	};
+};
+
 export const createMediaPartner = async ({
 	data,
 	created_by,

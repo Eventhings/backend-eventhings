@@ -6,6 +6,7 @@ import {
 	createMediaPartner,
 	deleteMediaPartner,
 	getAllMediaPartner,
+	getMediaPartnerByCreator,
 	getMediaPartnerById,
 	updateMediaPartner,
 } from "../../controllers";
@@ -78,6 +79,40 @@ mediaPartnerRoute.get(
 			}
 
 			return apiError;
+		}
+	})
+);
+
+mediaPartnerRoute.get(
+	"/business/:creator_id",
+	eventhingsResponse(async (req: Request) => {
+		try {
+			const creator_id = req.params.creator_id;
+
+			const params = await req.query;
+			const res = await getMediaPartnerByCreator({
+				creator_id,
+				limit: parseInt((params.limit ?? 10) as string),
+				page: parseInt((params.page ?? 0) as string),
+			});
+			return {
+				status: 200,
+				data: {
+					...res,
+				},
+				message: "Get all media partner successfully",
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+
+			throw apiError;
 		}
 	})
 );
