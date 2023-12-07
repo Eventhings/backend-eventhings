@@ -22,7 +22,6 @@ export const eventhingsResponse =
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const { status = 200, data, message } = await fn(req, res);
-			console.log(status, data, message);
 			res.status(status).send({
 				success: true,
 				data: data,

@@ -1,5 +1,5 @@
 export type SocialMedia = {
-	name: string;
+	social_media: string;
 	link: string;
 };
 
