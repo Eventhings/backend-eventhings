@@ -56,3 +56,42 @@ CREATE TABLE MEDIA_PARTNER_REVIEW (
     review VARCHAR(255),
     rating INTEGER
 );
+
+CREATE TABLE SPONSORSHIP (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    created_by VARCHAR(255),
+    approved_by VARCHAR(255),
+    logo_url VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255),
+    value VARCHAR(255),
+    last_updated TIMESTAMP DEFAULT current_timestamp,
+    updated_by VARCHAR(255),
+    created_at TIMESTAMP DEFAULT current_timestamp,
+    field VARCHAR(255) NOT NULL,
+    is_approved BOOLEAN DEFAULT false,
+    is_active BOOLEAN DEFAULT true
+);
+
+CREATE TABLE SPONSORSHIP_SOCIAL_MEDIA (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    sp_id UUID NOT NULL,
+	CONSTRAINT fk_sp
+      FOREIGN KEY(sp_id) 
+	  REFERENCES sponsorship(id)
+	  ON DELETE cascade,
+    social_media VARCHAR(255) NOT NULL,
+    link VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE SPONSORSHIP_REVIEW (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    sp_id UUID NOT NULL,
+	CONSTRAINT fk_sp
+      FOREIGN KEY(sp_id) 
+	  REFERENCES sponsorship(id)
+	  ON DELETE cascade,
+    user_id VARCHAR(255) NOT NULL,
+    review VARCHAR(255),
+    rating INTEGER
+);
