@@ -2,13 +2,19 @@ import express, { Request, Response } from "express";
 
 import {
 	activateMediaPartner,
+	addMediaPartnerPackage,
+	addMediaPartnerSocial,
 	approveMediaPartner,
 	createMediaPartner,
 	deleteMediaPartner,
+	deleteMediaPartnerPackage,
+	deleteMediaPartnerSocial,
 	getAllMediaPartner,
 	getMediaPartnerByCreator,
 	getMediaPartnerById,
 	updateMediaPartner,
+	updateMediaPartnerPackage,
+	updateMediaPartnerSocial,
 } from "../../controllers";
 import { isAuthenticated, isAuthorized } from "../../middlewares";
 import { UserRole } from "../../models";
@@ -57,7 +63,7 @@ mediaPartnerRoute.get(
 			if (!res.id) {
 				throw new ApiError({
 					code: ErrorCodes.notFoundErrorCode,
-					message: `Media partner with id ${mp_id} not found`,
+					message: `Media partner ${mp_id} not found`,
 				});
 			}
 
@@ -66,7 +72,7 @@ mediaPartnerRoute.get(
 				data: {
 					...res,
 				},
-				message: `Get media partner with id ${mp_id} successfully`,
+				message: `Get media partner ${mp_id} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({
@@ -138,7 +144,71 @@ mediaPartnerRoute.post(
 		} catch (err) {
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
-				details: "Failed to craete media partner",
+				details: "Failed to create media partner",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
+mediaPartnerRoute.post(
+	"/:id/package",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request) => {
+		try {
+			const body = await req.body;
+			const mp_id = req.params.id;
+			const data = await addMediaPartnerPackage({
+				data: body.packages,
+				mp_id,
+			});
+
+			return {
+				status: 200,
+				data: {
+					...data,
+				},
+				message: `Added package to media partner ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "Failed to add media partner package",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
+mediaPartnerRoute.post(
+	"/:id/social",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request) => {
+		try {
+			const body = await req.body;
+			const mp_id = req.params.id;
+			const data = await addMediaPartnerSocial({
+				data: body.socials,
+				mp_id,
+			});
+
+			return {
+				status: 200,
+				data: {
+					...data,
+				},
+				message: `Added social media to media partner ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "Failed to add media partner package",
 			});
 			if ((err as ApiError).code) {
 				apiError = err as ApiError;
@@ -156,9 +226,8 @@ mediaPartnerRoute.post(
 		try {
 			const mp_id = req.params.id;
 			const body = await req.body;
-
 			const data = await approveMediaPartner({
-				id: mp_id,
+				mp_id,
 				is_approved: body.is_approved ?? true,
 			});
 
@@ -167,7 +236,7 @@ mediaPartnerRoute.post(
 				data: data,
 				message: `${
 					body.is_approved ?? true ? "Approved" : "Unapproved"
-				} media partner with id ${mp_id} successfully`,
+				} media partner ${mp_id} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({
@@ -185,14 +254,15 @@ mediaPartnerRoute.post(
 mediaPartnerRoute.post(
 	"/:id/activate",
 	isAuthenticated,
-	eventhingsResponse(async (req: Request) => {
+	eventhingsResponse(async (req: Request, res: Response) => {
 		try {
 			const mp_id = req.params.id;
 			const body = await req.body;
 
 			const data = await activateMediaPartner({
-				id: mp_id,
+				mp_id,
 				is_active: body.is_active ?? true,
+				res,
 			});
 
 			return {
@@ -200,7 +270,7 @@ mediaPartnerRoute.post(
 				data: data,
 				message: `${
 					body.is_active ?? true ? "Activated" : "Deactivated"
-				} media partner with id ${mp_id} successfully`,
+				} media partner ${mp_id} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({
@@ -226,7 +296,99 @@ mediaPartnerRoute.delete(
 			return {
 				status: 200,
 				data: null,
-				message: `Deleted media partner with id ${mp_id} successfully`,
+				message: `Deleted media partner ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
+mediaPartnerRoute.delete(
+	"/:id/package/:package_id",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const mp_id = req.params.id;
+			const package_id = req.params.package_id;
+
+			await deleteMediaPartnerPackage({
+				package_id,
+				mp_id,
+				res,
+			});
+
+			return {
+				status: 200,
+				data: null,
+				message: `Deleted media partner package ${package_id} for media partner ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "Failed to add media partner package",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
+mediaPartnerRoute.delete(
+	"/:id/social/:social_id",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const mp_id = req.params.id;
+			const social_id = req.params.social_id;
+
+			await deleteMediaPartnerSocial({
+				social_id,
+				mp_id,
+				res,
+			});
+
+			return {
+				status: 200,
+				data: null,
+				message: `Deleted media partner social media ${social_id} for media partner ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "Failed to add media partner package",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
+mediaPartnerRoute.patch(
+	"/:id",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const mp_id = req.params.id;
+			const body = await req.body;
+
+			const data = await updateMediaPartner({ mp_id, data: body, res });
+
+			return {
+				status: 200,
+				data: data,
+				message: `Update media partner ${mp_id} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({
@@ -242,19 +404,59 @@ mediaPartnerRoute.delete(
 );
 
 mediaPartnerRoute.patch(
-	"/:id",
+	"/:id/package/:package_id",
 	isAuthenticated,
-	eventhingsResponse(async (req: Request) => {
+	eventhingsResponse(async (req: Request, res: Response) => {
 		try {
 			const mp_id = req.params.id;
+			const package_id = req.params.package_id;
 			const body = await req.body;
 
-			const data = await updateMediaPartner({ id: mp_id, data: body });
+			const data = await updateMediaPartnerPackage({
+				package_id,
+				mp_id,
+				data: body,
+				res,
+			});
 
 			return {
 				status: 200,
 				data: data,
-				message: `Update media partner with id ${mp_id} successfully`,
+				message: `Update media partner page ${package_id} for media partner ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
+mediaPartnerRoute.patch(
+	"/:id/social/:social_id",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const mp_id = req.params.id;
+			const social_id = req.params.social_id;
+			const body = await req.body;
+
+			const data = await updateMediaPartnerSocial({
+				social_id,
+				mp_id,
+				data: body,
+				res,
+			});
+
+			return {
+				status: 200,
+				data: data,
+				message: `Update media partner social media ${social_id} for media partner ${mp_id} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({
