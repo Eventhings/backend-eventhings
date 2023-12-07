@@ -14,3 +14,25 @@ export enum UserRole {
 	STANDARD = "standard",
 	BUSINESS = "business",
 }
+
+export type EventsData = {
+	id: string;
+	logo_url?: string;
+	created_by: string;
+	approved_by?: string;
+	name: string;
+	last_updated: Date;
+	created_at: Date;
+	is_approved: boolean;
+	is_active: boolean;
+	rating: number;
+	field: string;
+	value: string;
+	description: string;
+};
+
+export type EventsFilter = {
+	name: string;
+	field: string;
+	is_active: string;
+};

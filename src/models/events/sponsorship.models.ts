@@ -1,19 +1,12 @@
 import { EventsData, Reviews, SocialMedia } from "../common.model";
 
-export type MediaPartnerPackages = {
-	name: string;
-	price: number;
-	description: string;
-};
-
-export type GetMediaPartnerDetailData = {
+export type GetSpnonsorshipDetailData = {
 	social_media: SocialMedia[];
-	packages: MediaPartnerPackages[];
 	reviews: Reviews[];
 } & EventsData;
 
-export type UpdateCreateMediaPartnerBody = Exclude<
-	GetMediaPartnerDetailData,
+export type UpdateCreateSponsorshipBody = Exclude<
+	GetSpnonsorshipDetailData,
 	[
 		"created_by",
 		"id",

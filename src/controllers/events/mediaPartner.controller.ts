@@ -2,8 +2,8 @@ import { Response } from "express";
 import { dbQuery } from "../../db";
 import { uploadFile } from "../../gcloud";
 import {
-	GetAllMediaPartnerData,
-	MediaPartnerFilters,
+	EventsData,
+	EventsFilter,
 	MediaPartnerPackages,
 	SocialMedia,
 	UpdateCreateMediaPartnerBody,
@@ -20,21 +20,19 @@ export const getAllMediaPartner = async ({
 }: {
 	limit: number;
 	page: number;
-	filter: Partial<MediaPartnerFilters>;
+	filter: Partial<EventsFilter>;
 	sort_by: string;
 	sort_method: string;
 }) => {
 	let query = `SELECT * FROM media_partner WHERE 1 = 1`;
 	Object.keys(filter).map((val) => {
-		if (filter[val as keyof MediaPartnerFilters]) {
+		if (filter[val as keyof EventsFilter]) {
 			if (val == "name") {
 				query += ` AND ${val} ILIKE '%${
-					filter[val as keyof MediaPartnerFilters]
+					filter[val as keyof EventsFilter]
 				}%'`;
 			} else {
-				query += ` AND ${val} = '${
-					filter[val as keyof MediaPartnerFilters]
-				}'`;
+				query += ` AND ${val} = '${filter[val as keyof EventsFilter]}'`;
 			}
 		}
 	});
@@ -59,7 +57,7 @@ export const getAllMediaPartner = async ({
 		limit,
 		page,
 		total_page,
-		data: res.rows ?? ([] as GetAllMediaPartnerData[]),
+		data: res.rows ?? ([] as EventsData[]),
 	};
 };
 
@@ -93,7 +91,7 @@ export const createMediaPartner = async ({
 	const logo_url = await uploadFile({
 		fileName: `${new Date().getTime().toString(36)}.jpg`,
 		base64: data.logo,
-		folderName: "user-profile",
+		folderName: "event-image",
 		isPublic: true,
 	});
 
