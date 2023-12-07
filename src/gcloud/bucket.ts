@@ -38,7 +38,6 @@ export const uploadFile = async ({
 			predefinedAcl: isPublic ? "publicRead" : "private",
 		},
 	};
-	console.log(uploadOptions);
 
 	try {
 		const bucket = storage.bucket(env.GCLOUD_BUCKET_NAME ?? "");

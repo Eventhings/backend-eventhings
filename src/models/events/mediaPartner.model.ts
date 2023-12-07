@@ -20,6 +20,12 @@ export type GetAllMediaPartnerData = {
 	field: string;
 };
 
+export type MediaPartnerFilters = {
+	name: string;
+	field: string;
+	is_active: string;
+};
+
 export type GetMediaPartnerDetailData = {
 	value: string;
 	description: string;
