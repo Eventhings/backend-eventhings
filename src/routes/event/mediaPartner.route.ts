@@ -30,6 +30,13 @@ mediaPartnerRoute.get(
 			const res = await getAllMediaPartner({
 				limit: parseInt((params.limit ?? 10) as string),
 				page: parseInt((params.page ?? 0) as string),
+				filter: {
+					name: (params.name as string) ?? undefined,
+					field: (params.field as string) ?? undefined,
+					is_active: (params.is_active as string) ?? undefined,
+				},
+				sort_by: (params.sort_by as string) ?? undefined,
+				sort_method: (params.sort_method as string) ?? undefined,
 			});
 			return {
 				status: 200,

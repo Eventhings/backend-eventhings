@@ -3,6 +3,7 @@ import { dbQuery } from "../../db";
 import { uploadFile } from "../../gcloud";
 import {
 	GetAllMediaPartnerData,
+	MediaPartnerFilters,
 	MediaPartnerPackages,
 	SocialMedia,
 	UpdateCreateMediaPartnerBody,
@@ -10,17 +11,47 @@ import {
 } from "../../models";
 import { ApiError, ErrorCodes } from "../../utils";
 
-//! TODO: ADD FILTER
 export const getAllMediaPartner = async ({
 	limit,
 	page,
+	filter,
+	sort_by,
+	sort_method,
 }: {
 	limit: number;
 	page: number;
+	filter: Partial<MediaPartnerFilters>;
+	sort_by: string;
+	sort_method: string;
 }) => {
-	const res = await dbQuery(
-		`SELECT * FROM media_partner LIMIT ${limit} OFFSET ${page * limit}`
-	);
+	let query = `SELECT * FROM media_partner WHERE 1 = 1`;
+	Object.keys(filter).map((val) => {
+		if (filter[val as keyof MediaPartnerFilters]) {
+			if (val == "name") {
+				query += ` AND ${val} ILIKE '%${
+					filter[val as keyof MediaPartnerFilters]
+				}%'`;
+			} else {
+				query += ` AND ${val} = '${
+					filter[val as keyof MediaPartnerFilters]
+				}'`;
+			}
+		}
+	});
+
+	if (sort_by && sort_method) {
+		const allowedSortMethods = ["asc", "desc"];
+		if (allowedSortMethods.includes(sort_method.toLowerCase())) {
+			query += ` ORDER BY ${sort_by} ${sort_method}`;
+		} else {
+			throw new ApiError({
+				code: ErrorCodes.badRequestErrorCode,
+				details: "Wrong sorting method",
+			});
+		}
+	}
+
+	const res = await dbQuery(`${query} LIMIT ${limit} OFFSET ${page * limit}`);
 	const total = await dbQuery("SELECT COUNT(*) FROM media_partner");
 	const total_page = Math.ceil(total.rows[0].count / limit);
 	return {
@@ -37,10 +68,6 @@ export const getMediaPartnerById = async ({ id }: { id: string }) => {
 		`SELECT * FROM media_partner WHERE id = '${id}'`
 	);
 
-	const media_partner_detail = await dbQuery(
-		`SELECT * FROM media_partner_detail WHERE mp_id = '${id}'`
-	);
-
 	const media_partner_package = await dbQuery(
 		`SELECT * FROM media_partner_package WHERE mp_id = '${id}' ORDER BY name`
 	);
@@ -51,7 +78,6 @@ export const getMediaPartnerById = async ({ id }: { id: string }) => {
 
 	return {
 		...media_partner.rows[0],
-		...media_partner_detail.rows[0],
 		packages: [...media_partner_package.rows],
 		social_media: [...media_partner_social_media.rows],
 	};
@@ -74,7 +100,6 @@ export const getMediaPartnerByCreator = async ({
 	const total = await dbQuery(
 		`SELECT COUNT(*) FROM media_partner WHERE created_by = '${creator_id}'`
 	);
-	console.log(res);
 	const total_page = Math.ceil(total.rows[0].count / limit);
 	return {
 		total: parseInt(total.rows[0].count ?? 0),
@@ -100,17 +125,18 @@ export const createMediaPartner = async ({
 	});
 
 	const media_partner_results = await dbQuery(
-		`INSERT INTO MEDIA_PARTNER (name, field, created_by, logo_url) VALUES ($1, $2, $3, $4) RETURNING id;`,
-		[data.name, data.field, created_by, logo_url]
+		`INSERT INTO MEDIA_PARTNER (name, field, created_by, logo_url, description, value) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;`,
+		[
+			data.name,
+			data.field,
+			created_by,
+			logo_url,
+			data.description,
+			data.value,
+		]
 	);
 
 	const mp_id = media_partner_results.rows[0]?.id;
-
-	await dbQuery(
-		`INSERT INTO MEDIA_PARTNER_DETAIL (mp_id, description, value)
-		VALUES ($1, $2, $3)`,
-		[mp_id, data.description, data.value]
-	);
 
 	for (const val of data.packages || []) {
 		await dbQuery(
@@ -159,17 +185,17 @@ export const updateMediaPartner = async ({
 		await dbQuery(
 			`
 			UPDATE MEDIA_PARTNER
-			SET name = $1, field = $2, last_updated = $3
-			WHERE id = $4;
+			SET name = $1, field = $2, last_updated = $3, description = $4, value = $5
+			WHERE id = $6;
 		`,
-			[data.name, data.field, new Date(), mp_id]
-		);
-
-		await dbQuery(
-			`UPDATE MEDIA_PARTNER_DETAIL
-			SET description = $1, value = $2
-			WHERE mp_id = $3`,
-			[data.description, data.value, mp_id]
+			[
+				data.name,
+				data.field,
+				new Date(),
+				data.description,
+				data.value,
+				mp_id,
+			]
 		);
 
 		return data;
