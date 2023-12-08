@@ -2,7 +2,7 @@
   "name": "backend-eventhings",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.ts",
+  "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec ts-node-esm src/app.ts ",
     "start": "ts-node-esm src/app.ts",
