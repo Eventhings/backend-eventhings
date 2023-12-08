@@ -23,7 +23,17 @@ export const getAllSponsorship = async ({
 	sort_by: string;
 	sort_method: string;
 }) => {
-	let query = `SELECT * FROM sponsorship WHERE 1 = 1`;
+	let query = `
+		SELECT
+			m.*,
+			AVG(r.rating) AS average_rating
+		FROM
+			sponsorship m
+		LEFT JOIN
+			sponsorship_review r ON m.id = r.sp_id
+		WHERE 1 = 1
+	`;
+
 	Object.keys(filter).map((val) => {
 		if (filter[val as keyof EventsFilter]) {
 			if (val == "name") {
@@ -35,6 +45,8 @@ export const getAllSponsorship = async ({
 			}
 		}
 	});
+
+	query += ` GROUP BY m.id`;
 
 	if (sort_by && sort_method) {
 		const allowedSortMethods = ["asc", "desc"];
@@ -69,9 +81,14 @@ export const getSponsorshipById = async ({ id }: { id: string }) => {
 		`SELECT * FROM sponsorship_social_media WHERE sp_id = '${id}' ORDER BY social_media`
 	);
 
+	const sponsorship_review = await dbQuery(
+		`SELECT * FROM sponsorship_review WHERE sp_id = '${id}'`
+	);
+
 	return {
 		...sponsorship.rows[0],
 		social_media: [...sponsorship_social_media.rows],
+		reviews: [...sponsorship_review.rows],
 	};
 };
 
@@ -287,6 +304,86 @@ export const deleteSponsorshipSocial = async ({
 	) {
 		await dbQuery(
 			`DELETE FROM SPONSORSHIP_SOCIAL_MEDIA WHERE id = '${social_id}'`
+		);
+		return null;
+	}
+
+	throw new ApiError({
+		code: ErrorCodes.unauthorizedErrorCode,
+		details: "Unauthorized",
+	});
+};
+
+export const addSponsorshipReview = async ({
+	sp_id,
+	reviewer_id,
+	review,
+	rating,
+}: {
+	sp_id: string;
+	reviewer_id: string;
+	review: string;
+	rating: number;
+}) => {
+	const sp_review = await dbQuery(
+		`INSERT INTO SPONSORSHIP_REVIEW (sp_id, user_id, review, rating) VALUES ($1, $2, $3, $4);`,
+		[sp_id, reviewer_id, review, rating]
+	);
+
+	return sp_review.rows[0];
+};
+
+export const updateSponsorshipReview = async ({
+	review_id,
+	review,
+	rating,
+	res,
+}: {
+	review_id: string;
+	review: string;
+	rating: number;
+	res: Response;
+}) => {
+	const reviewer_id = await dbQuery(
+		`SELECT user_id FROM SPONSORSHIP_REVIEW WHERE id = $1`,
+		[review_id]
+	);
+
+	if (reviewer_id.rows[0]?.created_by === res.locals.uid) {
+		await dbQuery(
+			`UPDATE SPONSORSHIP_REVIEW
+			SET review = $1, rating = $2
+			WHERE id = $3`,
+			[review, rating, review_id]
+		);
+
+		return null;
+	}
+
+	throw new ApiError({
+		code: ErrorCodes.unauthorizedErrorCode,
+		details: "Unauthorized",
+	});
+};
+
+export const deleteSponsorshipReview = async ({
+	review_id,
+	res,
+}: {
+	review_id: string;
+	res: Response;
+}) => {
+	const reviewer_id = await dbQuery(
+		`SELECT user_id FROM SPONSORSHIP_REVIEW WHERE id = $1`,
+		[review_id]
+	);
+
+	if (
+		reviewer_id.rows[0]?.created_by === res.locals.uid ||
+		res.locals.role === UserRole.ADMIN
+	) {
+		await dbQuery(
+			`DELETE FROM SPONSORSHIP_REVIEW WHERE id = '${review_id}'`
 		);
 		return null;
 	}

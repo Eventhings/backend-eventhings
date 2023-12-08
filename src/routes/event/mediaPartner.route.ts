@@ -3,16 +3,19 @@ import express, { Request, Response } from "express";
 import {
 	activateMediaPartner,
 	addMediaPartnerPackage,
+	addMediaPartnerReview,
 	addMediaPartnerSocial,
 	approveMediaPartner,
 	createMediaPartner,
 	deleteMediaPartner,
 	deleteMediaPartnerPackage,
+	deleteMediaPartnerReview,
 	deleteMediaPartnerSocial,
 	getAllMediaPartner,
 	getMediaPartnerById,
 	updateMediaPartner,
 	updateMediaPartnerPackage,
+	updateMediaPartnerReview,
 	updateMediaPartnerSocial,
 } from "../../controllers";
 import { isAuthenticated, isAuthorized } from "../../middlewares";
@@ -180,7 +183,41 @@ mediaPartnerRoute.post(
 		} catch (err) {
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
-				details: "Failed to add media partner package",
+				details: "Failed to add media partner social media",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
+mediaPartnerRoute.post(
+	"/:id/review",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const body = await req.body;
+			const mp_id = req.params.id;
+			await addMediaPartnerReview({
+				mp_id,
+				reviewer_id: res.locals.uid,
+				rating: body.rating,
+				review: body.review,
+			});
+
+			return {
+				status: 200,
+				data: {
+					...body,
+				},
+				message: `Added review to media partner ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "Failed to add media partner review",
 			});
 			if ((err as ApiError).code) {
 				apiError = err as ApiError;
@@ -347,6 +384,37 @@ mediaPartnerRoute.delete(
 	})
 );
 
+mediaPartnerRoute.delete(
+	"/:id/review/:review_id",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const mp_id = req.params.id;
+			const review_id = req.params.review_id;
+
+			const data = await deleteMediaPartnerReview({
+				review_id,
+				res,
+			});
+
+			return {
+				status: 200,
+				data: data,
+				message: `Deleted media partner review ${review_id} for media partner ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
 mediaPartnerRoute.patch(
 	"/:id",
 	isAuthenticated,
@@ -429,6 +497,40 @@ mediaPartnerRoute.patch(
 				status: 200,
 				data: data,
 				message: `Update media partner social media ${social_id} for media partner ${mp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
+mediaPartnerRoute.patch(
+	"/:id/review/:review_id",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const mp_id = req.params.id;
+			const review_id = req.params.review_id;
+			const body = await req.body;
+
+			const data = await updateMediaPartnerReview({
+				review_id,
+				review: body.review,
+				rating: body.rating,
+				res,
+			});
+
+			return {
+				status: 200,
+				data: data,
+				message: `Update media partner review ${review_id} for media partner ${mp_id} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({

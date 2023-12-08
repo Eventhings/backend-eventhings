@@ -2,14 +2,17 @@ import express, { Request, Response } from "express";
 
 import {
 	activateSponsorship,
+	addSponsorshipReview,
 	addSponsorshipSocial,
 	approveSponsorship,
 	createSponsorship,
 	deleteMediaPartner,
+	deleteSponsorshipReview,
 	deleteSponsorshipSocial,
 	getAllSponsorship,
 	getSponsorshipById,
 	updateSponsorship,
+	updateSponsorshipReview,
 	updateSponsorshipSocial,
 } from "../../controllers";
 import { isAuthenticated, isAuthorized } from "../../middlewares";
@@ -156,6 +159,40 @@ sponsorshipRoute.post(
 );
 
 sponsorshipRoute.post(
+	"/:id/review",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const body = await req.body;
+			const sp_id = req.params.id;
+			await addSponsorshipReview({
+				sp_id,
+				reviewer_id: res.locals.uid,
+				rating: body.rating,
+				review: body.review,
+			});
+
+			return {
+				status: 200,
+				data: {
+					...body,
+				},
+				message: `Added review to sponsorship ${sp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "Failed to add sponsorship review",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
+sponsorshipRoute.post(
 	"/:id/approve",
 	isAuthenticated,
 	isAuthorized({ allowedRoles: [UserRole.ADMIN] }),
@@ -280,6 +317,37 @@ sponsorshipRoute.delete(
 	})
 );
 
+sponsorshipRoute.delete(
+	"/:id/review/:review_id",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const sp_id = req.params.id;
+			const review_id = req.params.review_id;
+
+			const data = await deleteSponsorshipReview({
+				review_id,
+				res,
+			});
+
+			return {
+				status: 200,
+				data: data,
+				message: `Deleted sponsorship review ${review_id} for sponsorship ${sp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
 sponsorshipRoute.patch(
 	"/:id",
 	isAuthenticated,
@@ -328,6 +396,40 @@ sponsorshipRoute.patch(
 				status: 200,
 				data: data,
 				message: `Update media partner social media ${social_id} for media partner ${sp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
+sponsorshipRoute.patch(
+	"/:id/review/:review_id",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const sp_id = req.params.id;
+			const review_id = req.params.review_id;
+			const body = await req.body;
+
+			const data = await updateSponsorshipReview({
+				review_id,
+				review: body.review,
+				rating: body.rating,
+				res,
+			});
+
+			return {
+				status: 200,
+				data: data,
+				message: `Update sponsorship review ${review_id} for sponsorship ${sp_id} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({
