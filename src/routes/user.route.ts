@@ -204,26 +204,3 @@ userRoutes.post(
 		}
 	})
 );
-
-userRoutes.get(
-	"/eventhings",
-	eventhingsResponse(async () => {
-		try {
-			return {
-				status: 200,
-				data: null,
-				message: "Eventhings APIs",
-			};
-		} catch (err) {
-			let apiError = new ApiError({
-				code: ErrorCodes.internalServerErrorCode,
-			});
-
-			if ((err as ApiError).code) {
-				apiError = err as ApiError;
-			}
-
-			return apiError;
-		}
-	})
-);
