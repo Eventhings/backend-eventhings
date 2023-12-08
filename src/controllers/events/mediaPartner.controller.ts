@@ -24,7 +24,16 @@ export const getAllMediaPartner = async ({
 	sort_by: string;
 	sort_method: string;
 }) => {
-	let query = `SELECT * FROM media_partner WHERE 1 = 1`;
+	let query = `
+		SELECT
+			m.*,
+			AVG(r.rating) AS average_rating
+		FROM
+			MEDIA_PARTNER m
+		LEFT JOIN
+			MEDIA_PARTNER_REVIEW r ON m.id = r.mp_id
+		WHERE 1 = 1
+	`;
 	Object.keys(filter).map((val) => {
 		if (filter[val as keyof EventsFilter]) {
 			if (val == "name") {
@@ -37,6 +46,8 @@ export const getAllMediaPartner = async ({
 		}
 	});
 
+	query += ` GROUP BY m.id`;
+
 	if (sort_by && sort_method) {
 		const allowedSortMethods = ["asc", "desc"];
 		if (allowedSortMethods.includes(sort_method.toLowerCase())) {
@@ -48,7 +59,6 @@ export const getAllMediaPartner = async ({
 			});
 		}
 	}
-
 	const res = await dbQuery(`${query} LIMIT ${limit} OFFSET ${page * limit}`);
 	const total = await dbQuery("SELECT COUNT(*) FROM media_partner");
 	const total_page = Math.ceil(total.rows[0].count / limit);
@@ -74,10 +84,15 @@ export const getMediaPartnerById = async ({ id }: { id: string }) => {
 		`SELECT * FROM media_partner_social_media WHERE mp_id = '${id}' ORDER BY social_media`
 	);
 
+	const media_partner_review = await dbQuery(
+		`SELECT * FROM media_partner_review WHERE mp_id = '${id}'`
+	);
+
 	return {
 		...media_partner.rows[0],
 		packages: [...media_partner_package.rows],
 		social_media: [...media_partner_social_media.rows],
+		reviews: [...media_partner_review.rows],
 	};
 };
 
@@ -383,6 +398,86 @@ export const deleteMediaPartnerSocial = async ({
 	) {
 		await dbQuery(
 			`DELETE FROM MEDIA_PARTNER_SOCIAL_MEDIA WHERE id = '${social_id}'`
+		);
+		return null;
+	}
+
+	throw new ApiError({
+		code: ErrorCodes.unauthorizedErrorCode,
+		details: "Unauthorized",
+	});
+};
+
+export const addMediaPartnerReview = async ({
+	mp_id,
+	reviewer_id,
+	review,
+	rating,
+}: {
+	mp_id: string;
+	reviewer_id: string;
+	review: string;
+	rating: number;
+}) => {
+	const mp_review = await dbQuery(
+		`INSERT INTO MEDIA_PARTNER_REVIEW (mp_id, user_id, review, rating) VALUES ($1, $2, $3, $4);`,
+		[mp_id, reviewer_id, review, rating]
+	);
+
+	return mp_review.rows[0];
+};
+
+export const updateMediaPartnerReview = async ({
+	review_id,
+	review,
+	rating,
+	res,
+}: {
+	review_id: string;
+	review: string;
+	rating: number;
+	res: Response;
+}) => {
+	const reviewer_id = await dbQuery(
+		`SELECT user_id FROM MEDIA_PARTNER_REVIEW WHERE id = $1`,
+		[review_id]
+	);
+
+	if (reviewer_id.rows[0]?.created_by === res.locals.uid) {
+		await dbQuery(
+			`UPDATE MEDIA_PARTNER_REVIEW
+			SET review = $1, rating = $2
+			WHERE id = $3`,
+			[review, rating, review_id]
+		);
+
+		return null;
+	}
+
+	throw new ApiError({
+		code: ErrorCodes.unauthorizedErrorCode,
+		details: "Unauthorized",
+	});
+};
+
+export const deleteMediaPartnerReview = async ({
+	review_id,
+	res,
+}: {
+	review_id: string;
+	res: Response;
+}) => {
+	const reviewer_id = await dbQuery(
+		`SELECT user_id FROM MEDIA_PARTNER_REVIEW WHERE id = $1`,
+		[review_id]
+	);
+
+	if (
+		reviewer_id.rows[0]?.created_by === res.locals.uid ||
+		res.locals.role === UserRole.ADMIN
+	) {
+		await dbQuery(
+			`DELETE FROM MEDIA_PARTNER_REVIEW WHERE id = '${review_id}'`
 		);
 		return null;
 	}
