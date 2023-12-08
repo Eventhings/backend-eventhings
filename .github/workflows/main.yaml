@@ -5,13 +5,14 @@ on:
         branches: ["main"]
 
 env:
-    PROJECT_ID: "eventhings"
-    GAR_LOCATION: "eventhings-api"
-    SERVICE: "rest-eventhings-api-southeast2"
-    REGION: "asia-southeast2"
+    PROJECT_ID: "eventhings" # TODO: update Google Cloud project id
+    GAR_LOCATION: "eventhings-api" # TODO: update Artifact Registry location
+    SERVICE: "rest-eventhings-api-southeast2" # TODO: update Cloud Run service name
+    REGION: "asia-southeast2" # TODO: update Cloud Run service region
 
 jobs:
     deploy:
+        # Add 'id-token' with the intended permissions for workload identity federation
         permissions:
             contents: "read"
             id-token: "write"
@@ -21,13 +22,14 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v2
 
+            # NOTE: Alternative option - authentication via credentials json
             - name: Google Auth
               id: auth
               uses: "google-github-actions/auth@v0"
               with:
-                  token_format: "access_token"
-                  workload_identity_provider: "${{ secrets.WIF_PROVIDER }}" # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
-                  service_account: "${{ secrets.WIF_SERVICE_ACCOUNT }}" # e.g. - my-service-account@my-project.iam.gserviceaccount.com
+                  credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
+
+            # BEGIN - Docker auth and build (NOTE: If you already have a container image, these Docker steps can be omitted)
 
             # Authenticate Docker to Google Cloud Artifact Registry
             - name: Docker Auth
@@ -51,7 +53,9 @@ jobs:
               with:
                   service: ${{ env.SERVICE }}
                   region: ${{ env.REGION }}
+                  # NOTE: If using a pre-built image, update the image name here
                   image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}
 
+            # If required, use the Cloud Run url output in later steps
             - name: Show Output
               run: echo ${{ steps.deploy.outputs.url }}
