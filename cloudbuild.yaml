@@ -1,5 +1,4 @@
 steps:
-    - logging: CLOUD_LOGGING_ONLY
     - name: gcr.io/cloud-builders/docker
       args:
           [
