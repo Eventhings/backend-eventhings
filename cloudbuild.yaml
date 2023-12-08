@@ -1,9 +1,15 @@
 steps:
     - name: gcr.io/cloud-builders/docker
-      args: ["build", "-t", "${_CONTAINER_LOCATION}}", "."]
+      args:
+          [
+              "build",
+              "-t",
+              "gcr.io/$PROJECT_ID/${_SERVICE_NAME}:${SHORT_SHA}",
+              ".",
+          ]
       id: Building the container image
     - name: "gcr.io/cloud-builders/docker"
-      args: ["push", "${_CONTAINER_LOCATION}"]
+      args: ["push", "gcr.io/$PROJECT_ID/${_SERVICE_NAME}:${SHORT_SHA}"]
       id: Pushing the image to registry
     - name: "gcr.io/cloud-builders/gcloud"
       args:
@@ -12,7 +18,7 @@ steps:
               "deploy",
               "${_SERVICE_NAME}",
               "--image",
-              "${_CONTAINER_LOCATION}",
+              "gcr.io/$PROJECT_ID/${_SERVICE_NAME}:${SHORT_SHA}",
               "--region",
               "asia-southeast2",
               "--platform",
