@@ -27,7 +27,7 @@ routes.get(
 			return {
 				status: 200,
 				data: null,
-				message: "Eventhings APIs",
+				message: "Testing Eventhings APIs",
 			};
 		} catch (err) {
 			let apiError = new ApiError({
