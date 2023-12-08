@@ -18,4 +18,4 @@ COPY . /app
 EXPOSE 3000
 
 # Start the application in dev mode
-CMD ["pnpm", "run", "dev"]
+CMD ["pnpm", "run", "start"]
