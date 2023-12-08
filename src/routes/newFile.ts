@@ -1,26 +1,7 @@
-import express from "express";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../utils";
-import eventRoutes from "./event";
 import { userRoutes } from "./user.route";
 
-const routes = express.Router();
-
-const defaultRoutes = [
-	{
-		path: "/event",
-		route: eventRoutes,
-	},
-	{
-		path: "/user",
-		route: userRoutes,
-	},
-];
-
-defaultRoutes.forEach((route) => {
-	routes.use(route.path, route.route);
-});
-
-routes.get(
+userRoutes.get(
 	"/eventhings",
 	eventhingsResponse(async () => {
 		try {
@@ -29,7 +10,10 @@ routes.get(
 				data: null,
 				message: "Eventhings APIs",
 			};
-		} catch (err) {
+		} finally {
+		}
+		atch(err);
+		{
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
 			});
@@ -42,5 +26,3 @@ routes.get(
 		}
 	})
 );
-
-export default routes;
