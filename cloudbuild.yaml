@@ -1,9 +1,9 @@
 steps:
     - name: gcr.io/cloud-builders/docker
-      args: ["build", "-t", "${_CONTAINER_LOCATION}", "."]
+      args: ["build", "-t", "${_CONTAINER_LOCATION}}", "."]
       id: Building the container image
     - name: "gcr.io/cloud-builders/docker"
-      args: ["push", "gcr.io/$PROJECT_ID/${_SERVICE_NAME}:${SHORT_SHA}"]
+      args: ["push", "${_CONTAINER_LOCATION}"]
       id: Pushing the image to registry
     - name: "gcr.io/cloud-builders/gcloud"
       args:
@@ -19,3 +19,5 @@ steps:
               "managed",
               "--allow-unauthenticated",
           ]
+options:
+    logging: CLOUD_LOGGING_ONLY
