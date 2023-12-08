@@ -57,6 +57,10 @@ CREATE TABLE MEDIA_PARTNER_REVIEW (
     rating INTEGER
 );
 
+drop table if exists SPONSORSHIP CASCADE;
+drop table if exists SPONSORSHIP_SOCIAL_MEDIA CASCADE;
+drop table if exists SPONSORSHIP_REVIEW CASCADE;
+
 CREATE TABLE SPONSORSHIP (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     created_by VARCHAR(255),

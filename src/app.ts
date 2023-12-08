@@ -2,10 +2,10 @@ import cors from "cors";
 import "dotenv/config";
 import express from "express";
 
-import { initFirebase } from "./gcloud";
 import { protectEndpoint } from "./middlewares";
 import errorHandler from "./middlewares/errorHandlers";
 import routes from "./routes";
+import { initFirebase } from "./service";
 
 const app = express();
 

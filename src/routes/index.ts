@@ -13,6 +13,10 @@ const defaultRoutes = [
 		path: "/user",
 		route: userRoutes,
 	},
+	{
+		path: "/payment",
+		route: userRoutes,
+	},
 ];
 
 defaultRoutes.forEach((route) => {

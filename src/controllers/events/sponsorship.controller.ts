@@ -1,6 +1,5 @@
 import { Response } from "express";
 import { dbQuery } from "../../db";
-import { uploadFile } from "../../gcloud";
 import {
 	EventsData,
 	EventsFilter,
@@ -8,6 +7,7 @@ import {
 	UpdateCreateSponsorshipBody,
 	UserRole,
 } from "../../models";
+import { uploadFile } from "../../service";
 import { ApiError, ErrorCodes } from "../../utils";
 
 export const getAllSponsorship = async ({
