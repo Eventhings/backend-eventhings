@@ -19,4 +19,12 @@ defaultRoutes.forEach((route) => {
 	routes.use(route.path, route.route);
 });
 
+routes.get("/", () => {
+	return {
+		status: 200,
+		data: null,
+		message: "Eventhings APIs",
+	};
+});
+
 export default routes;
