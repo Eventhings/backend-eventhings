@@ -1,21 +1,16 @@
-# Use an official Node.js image
-FROM node:18.17.0
+FROM node:lts-alpine
 
-# Set the working directory
+#ENV PNPM
+ENV PNPM_HOME=/usr/local/pnpm-global
+ENV PATH=$PNPM_HOME/bin:$PATH
+
 WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm
+RUN pnpm install --frozen-lockfile
+COPY . /app/
 
-# Expose the port your app runs on
+
 EXPOSE 3000
 
-# Copy package.json and pnpm-lock.yaml to the working directory
-COPY package.json pnpm-lock.yaml /app/
-
-# Enabling corepack & Install dependencies
-RUN corepack enable
-RUN pnpm install
-
-# Copy src folder the rest of the application
-COPY . /app
-
-# Start the application in dev mode
 CMD ["pnpm", "run", "start"]
