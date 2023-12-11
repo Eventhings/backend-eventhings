@@ -1,5 +1,6 @@
 import express from "express";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../utils";
+import chatRoutes from "./chat";
 import eventRoutes from "./event";
 import { userRoutes } from "./user.route";
 
@@ -13,6 +14,10 @@ const defaultRoutes = [
 	{
 		path: "/user",
 		route: userRoutes,
+	},
+	{
+		path: "/chat",
+		route: chatRoutes,
 	},
 ];
 

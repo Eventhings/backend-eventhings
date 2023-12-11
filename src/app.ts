@@ -2,14 +2,18 @@ import cors from "cors";
 import "dotenv/config";
 import express from "express";
 
-import { initFirebase } from "./gcloud";
+import { createServer } from "http";
 import { protectEndpoint } from "./middlewares";
 import errorHandler from "./middlewares/errorHandlers";
 import routes from "./routes";
+import { initFirebase } from "./service";
+import { socketConnection } from "./service/socket";
 
 const app = express();
+const server = createServer(app);
 
 initFirebase();
+socketConnection(server);
 
 app.use(cors());
 app.options("*", cors());
@@ -21,5 +25,5 @@ app.use(protectEndpoint);
 app.use("/", routes);
 app.use(errorHandler);
 
-const PORT = 3000;
-app.listen(PORT, () => console.log("Server Running on Port " + PORT));
+const PORT = 8080;
+server.listen(PORT, () => console.log("Server Running on Port " + PORT));

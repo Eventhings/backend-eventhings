@@ -95,3 +95,25 @@ CREATE TABLE SPONSORSHIP_REVIEW (
     review VARCHAR(255),
     rating INTEGER
 );
+
+drop table if exists CHAT_ROOM CASCADE;
+drop table if exists CHAT_MESSAGE CASCADE;
+
+CREATE TABLE CHAT_ROOM (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+	created_at TIMESTAMP DEFAULT current_timestamp,
+    customer_id VARCHAR(255) NOT NULL,
+    business_id VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE CHAT_MESSAGE (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    created_at TIMESTAMP DEFAULT current_timestamp,
+    room_id UUID NOT NULL,
+    CONSTRAINT fk_room_id
+        FOREIGN KEY(room_id) 
+        REFERENCES CHAT_ROOM(id)
+        ON DELETE cascade,
+    user_id VARCHAR(255) NOT NULL,
+    message VARCHAR(255) NOT NULL
+);
