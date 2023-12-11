@@ -1,8 +1,6 @@
 import express, { Request, Response } from "express";
-import {
-	createChatRoom,
-	getAllChatRoomById,
-} from "../../controllers/chat.controller";
+
+import { createChatRoom, getAllChatRoomById } from "../../controllers";
 import { isAuthenticated } from "../../middlewares";
 import { UserRole } from "../../models";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../../utils";
@@ -15,11 +13,6 @@ roomRoutes.get(
 	eventhingsResponse(async (_req: Request, res: Response) => {
 		try {
 			const { uid } = res.locals;
-			if (!uid) {
-				throw new ApiError({
-					code: ErrorCodes.badRequestErrorCode,
-				});
-			}
 			const data = await getAllChatRoomById({
 				id: uid,
 				role: UserRole.STANDARD,
@@ -50,11 +43,7 @@ roomRoutes.get(
 	eventhingsResponse(async (_req: Request, res: Response) => {
 		try {
 			const { uid } = res.locals;
-			if (!uid) {
-				throw new ApiError({
-					code: ErrorCodes.badRequestErrorCode,
-				});
-			}
+
 			const data = await getAllChatRoomById({
 				id: uid,
 				role: UserRole.BUSINESS,
@@ -86,7 +75,7 @@ roomRoutes.post(
 		try {
 			const { uid } = res.locals;
 			const { business_id } = req.body;
-			if (!uid && !business_id) {
+			if (!business_id) {
 				throw new ApiError({
 					code: ErrorCodes.badRequestErrorCode,
 				});

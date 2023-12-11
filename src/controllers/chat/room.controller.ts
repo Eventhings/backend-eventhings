@@ -1,6 +1,6 @@
-import { dbQuery } from "../db";
-import { UserRole } from "../models";
-import { ApiError, ErrorCodes } from "../utils";
+import { dbQuery } from "../../db";
+import { UserRole } from "../../models";
+import { ApiError, ErrorCodes } from "../../utils";
 
 export const createChatRoom = async ({
 	customer_id,
