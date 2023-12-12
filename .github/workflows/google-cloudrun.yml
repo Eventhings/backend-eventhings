@@ -1,5 +1,6 @@
 name: Build and Deploy to Cloud Run
 on:
+
   push:
     branches: [ "main" ]
 
@@ -11,7 +12,11 @@ env:
 
 jobs:
   deploy:
-    runs-on: node:lts-alpine
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
