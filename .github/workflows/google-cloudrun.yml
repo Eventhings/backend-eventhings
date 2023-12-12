@@ -21,15 +21,27 @@ jobs:
         uses: 'google-github-actions/auth@v0'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-          
+
+      - name: Docker Auth
+        id: docker-auth
+        uses: 'docker/login-action@v1'
+        with:
+          username: 'oauth2accesstoken'
+          password: '${{ steps.auth.outputs.access_token }}'
+          registry: '${{ env.GAR_LOCATION }}.gcr.io'
+
+      - name: Build and Push Container
+        run: |-
+          docker build -t "${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ env.RUN_SERVICE }}:${{ github.sha }}" ./
+          docker push "${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ env.RUN_SERVICE }}:${{ github.sha }}"
+
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v0
         with:
           service: ${{ env.SERVICE }}
           region: ${{ env.REGION }}
-          image: ${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ secrets.SERVICE }}:${{ github.sha }}
+          image: ${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ secrets.RUN_SERVICE }}:${{ github.sha }}
 
-      # If required, use the Cloud Run url output in later steps
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
