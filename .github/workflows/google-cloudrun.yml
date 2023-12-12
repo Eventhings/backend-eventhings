@@ -1,0 +1,35 @@
+name: Build and Deploy to Cloud Run
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  PROJECT_ID: eventhings
+  GAR_LOCATION: asia-southeast2
+  SERVICE: ${{ secrets.RUN_SERVICE }}
+  REGION: asia-southeast2
+
+jobs:
+  deploy:
+    runs-on: node:lts-alpine
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Google Auth
+        id: auth
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}''
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v0
+        with:
+          service: ${{ env.SERVICE }}
+          region: ${{ env.REGION }}
+          image: ${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ secrets.SERVICE }}:${{ github.sha }}
+
+      # If required, use the Cloud Run url output in later steps
+      - name: Show Output
+        run: echo ${{ steps.deploy.outputs.url }}
