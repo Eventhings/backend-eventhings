@@ -15,7 +15,7 @@ const server = createServer(app);
 initFirebase();
 socketConnection(server);
 
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.options("*", cors());
 
 app.use(express.json());

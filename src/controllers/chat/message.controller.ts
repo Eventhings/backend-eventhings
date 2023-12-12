@@ -24,7 +24,7 @@ export const getAllChatRoomMessages = async ({
 		room.rows[0].customer_id === user_id
 	) {
 		const messages = await dbQuery(
-			`SELECT * FROM CHAT_MESSAGE WHERE room_id = $1`,
+			`SELECT id, created_at, user_id, message FROM CHAT_MESSAGE WHERE room_id = $1`,
 			[room_id]
 		);
 
