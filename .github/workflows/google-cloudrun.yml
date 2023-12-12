@@ -13,8 +13,8 @@ env:
 jobs:
   deploy:
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: read
+      id-token: write
 
     runs-on: ubuntu-latest
     steps:
@@ -26,14 +26,6 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-
-      - name: Docker Auth
-        id: docker-auth
-        uses: docker/login-action@v3
-        with:
-          username: oauth2accesstoken
-          password: ${{ steps.auth.outputs.access_token }}
-          registry: asia.gcr.io
 
       - name: Build and Push Container
         run: |-
