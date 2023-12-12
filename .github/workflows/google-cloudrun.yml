@@ -6,9 +6,9 @@ on:
 
 env:
   PROJECT_ID: eventhings
-  GAR_LOCATION: asia-southeast2
+  GAR_LOCATION: asia
   SERVICE: ${{ secrets.RUN_SERVICE }}
-  REGION: asia
+  REGION: asia-southeast2
 
 jobs:
   deploy:
