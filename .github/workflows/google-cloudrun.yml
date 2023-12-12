@@ -45,7 +45,7 @@ jobs:
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v0
         with:
-          service: ${{ env.SERVICE }}
+          service: ${{ secrets.RUN_SERVICE }}
           region: ${{ env.REGION }}
           image: ${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ secrets.RUN_SERVICE }}:${{ github.sha }}
 
