@@ -21,5 +21,7 @@ app.use(protectEndpoint);
 app.use("/", routes);
 app.use(errorHandler);
 
-const PORT = 3000;
-app.listen(PORT, () => console.log("Server Running on Port " + PORT));
+const port = parseInt(process.env.PORT ?? '8081');
+app.listen(port, () => {
+    console.log(`helloworld: listening on port ${port}`);
+});
