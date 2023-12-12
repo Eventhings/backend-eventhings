@@ -7,7 +7,6 @@ on:
 env:
   PROJECT_ID: eventhings
   GAR_LOCATION: asia
-  SERVICE: ${{ secrets.RUN_SERVICE }}
   REGION: asia-southeast2
 
 jobs:
@@ -29,8 +28,8 @@ jobs:
 
       - name: Build and Push Container
         run: |-
-          docker build -t ${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ env.RUN_SERVICE }}:${{ github.sha }} ./
-          docker push ${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ env.RUN_SERVICE }}:${{ github.sha }}
+          docker build -t ${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ secrets.RUN_SERVICE }}:${{ github.sha }} ./
+          docker push ${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ secrets.RUN_SERVICE }}:${{ github.sha }}
 
       - name: Deploy to Cloud Run
         id: deploy
