@@ -25,31 +25,32 @@ export const getAllSponsorship = async ({
 }) => {
 	let query = `
 		SELECT
-			m.*,
+			s.*,
 			AVG(r.rating) AS average_rating
 		FROM
-			sponsorship m
+			sponsorship s
 		LEFT JOIN
-			sponsorship_review r ON m.id = r.sp_id
+			sponsorship_review r ON s.id = r.sp_id
 		WHERE 1 = 1
 	`;
 
-	//! TODO: Sanitize query
+	const queryParams = [];
+
 	Object.keys(filter).map((val) => {
 		if (filter[val as keyof EventsFilter]) {
 			if (val == "name") {
-				query += ` AND ${val} ILIKE '%${
-					filter[val as keyof EventsFilter]
-				}%'`;
+				query += ` AND ${val} ILIKE '%' || $${
+					queryParams.length + 1
+				} || '%'`;
 			} else {
-				query += ` AND ${val} = '${filter[val as keyof EventsFilter]}'`;
+				query += ` AND ${val} = $${queryParams.length + 1}`;
 			}
+			queryParams.push(filter[val as keyof EventsFilter]);
 		}
 	});
 
-	query += ` GROUP BY m.id`;
+	query += ` GROUP BY s.id`;
 
-	//! TODO: Sanitize query
 	if (sort_by && sort_method) {
 		const allowedSortMethods = ["asc", "desc"];
 		if (allowedSortMethods.includes(sort_method.toLowerCase())) {
@@ -62,8 +63,12 @@ export const getAllSponsorship = async ({
 		}
 	}
 
-	//! TODO: Sanitize query
-	const res = await dbQuery(`${query} LIMIT ${limit} OFFSET ${page * limit}`);
+	query += ` LIMIT $${queryParams.length + 1} OFFSET $${
+		queryParams.length + 2
+	}`;
+	queryParams.push(limit, page * limit);
+
+	const res = await dbQuery(query, queryParams);
 	const total = await dbQuery("SELECT COUNT(*) FROM sponsorship");
 	const total_page = Math.ceil(total.rows[0].count / limit);
 	return {
@@ -76,17 +81,19 @@ export const getAllSponsorship = async ({
 };
 
 export const getSponsorshipById = async ({ id }: { id: string }) => {
-	//! TODO: Sanitize query
 	const sponsorship = await dbQuery(
-		`SELECT * FROM sponsorship WHERE id = '${id}'`
+		`SELECT * FROM sponsorship WHERE id = $1`,
+		[id]
 	);
 
 	const sponsorship_social_media = await dbQuery(
-		`SELECT * FROM sponsorship_social_media WHERE sp_id = '${id}' ORDER BY social_media`
+		`SELECT * FROM sponsorship_social_media WHERE sp_id = $1 ORDER BY social_media`,
+		[id]
 	);
 
 	const sponsorship_review = await dbQuery(
-		`SELECT * FROM sponsorship_review WHERE sp_id = '${id}'`
+		`SELECT * FROM sponsorship_review WHERE sp_id = $1`,
+		[id]
 	);
 
 	return {
@@ -138,7 +145,7 @@ export const createSponsorship = async ({
 };
 
 export const deleteSponsorship = async ({ id }: { id: string }) => {
-	await dbQuery(`DELETE FROM SPONSORSHIP WHERE id = '${id}'`);
+	await dbQuery(`DELETE FROM SPONSORSHIP WHERE id = $1`, [id]);
 	return null;
 };
 
@@ -306,9 +313,9 @@ export const deleteSponsorshipSocial = async ({
 		creator_id.rows[0]?.created_by === res.locals.uid ||
 		res.locals.role === UserRole.ADMIN
 	) {
-		await dbQuery(
-			`DELETE FROM SPONSORSHIP_SOCIAL_MEDIA WHERE id = '${social_id}'`
-		);
+		await dbQuery(`DELETE FROM SPONSORSHIP_SOCIAL_MEDIA WHERE id = $1`, [
+			social_id,
+		]);
 		return null;
 	}
 
@@ -386,9 +393,9 @@ export const deleteSponsorshipReview = async ({
 		reviewer_id.rows[0]?.created_by === res.locals.uid ||
 		res.locals.role === UserRole.ADMIN
 	) {
-		await dbQuery(
-			`DELETE FROM SPONSORSHIP_REVIEW WHERE id = '${review_id}'`
-		);
+		await dbQuery(`DELETE FROM SPONSORSHIP_REVIEW WHERE id = $1`, [
+			review_id,
+		]);
 		return null;
 	}
 
