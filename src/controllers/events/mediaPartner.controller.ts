@@ -1,6 +1,5 @@
 import { Response } from "express";
 import { dbQuery } from "../../db";
-import { uploadFile } from "../../gcloud";
 import {
 	EventsData,
 	EventsFilter,
@@ -9,6 +8,7 @@ import {
 	UpdateCreateMediaPartnerBody,
 	UserRole,
 } from "../../models";
+import { uploadFile } from "../../service";
 import { ApiError, ErrorCodes } from "../../utils";
 
 export const getAllMediaPartner = async ({

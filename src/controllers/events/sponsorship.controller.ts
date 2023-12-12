@@ -1,6 +1,5 @@
 import { Response } from "express";
 import { dbQuery } from "../../db";
-import { uploadFile } from "../../gcloud";
 import {
 	EventsData,
 	EventsFilter,
@@ -8,6 +7,7 @@ import {
 	UpdateCreateSponsorshipBody,
 	UserRole,
 } from "../../models";
+import { uploadFile } from "../../service";
 import { ApiError, ErrorCodes } from "../../utils";
 
 export const getAllSponsorship = async ({
@@ -34,6 +34,7 @@ export const getAllSponsorship = async ({
 		WHERE 1 = 1
 	`;
 
+	//! TODO: Sanitize query
 	Object.keys(filter).map((val) => {
 		if (filter[val as keyof EventsFilter]) {
 			if (val == "name") {
@@ -48,6 +49,7 @@ export const getAllSponsorship = async ({
 
 	query += ` GROUP BY m.id`;
 
+	//! TODO: Sanitize query
 	if (sort_by && sort_method) {
 		const allowedSortMethods = ["asc", "desc"];
 		if (allowedSortMethods.includes(sort_method.toLowerCase())) {
@@ -60,6 +62,7 @@ export const getAllSponsorship = async ({
 		}
 	}
 
+	//! TODO: Sanitize query
 	const res = await dbQuery(`${query} LIMIT ${limit} OFFSET ${page * limit}`);
 	const total = await dbQuery("SELECT COUNT(*) FROM sponsorship");
 	const total_page = Math.ceil(total.rows[0].count / limit);
@@ -73,6 +76,7 @@ export const getAllSponsorship = async ({
 };
 
 export const getSponsorshipById = async ({ id }: { id: string }) => {
+	//! TODO: Sanitize query
 	const sponsorship = await dbQuery(
 		`SELECT * FROM sponsorship WHERE id = '${id}'`
 	);
