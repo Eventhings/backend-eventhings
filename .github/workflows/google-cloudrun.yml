@@ -1,0 +1,53 @@
+name: Build and Deploy to Cloud Run
+on:
+
+  push:
+    branches: [ main ]
+
+env:
+  PROJECT_ID: eventhings
+  GAR_LOCATION: asia
+  REGION: asia-southeast2
+
+jobs:
+  deploy:
+    permissions:
+      contents: read
+      id-token: write
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Authenticate Docker
+        run: gcloud auth configure-docker --quiet
+        
+      - name: Login to GAR
+        uses: docker/login-action@v3
+        with:
+          registry: asia.gcr.io
+          username: _json_key
+          password: ${{ secrets.GCP_CREDENTIALS }}
+          
+      - name: Build and Push Container
+        run: |-
+          docker build -t ${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ secrets.RUN_SERVICE }}:${{ github.sha }} ./
+          docker push ${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ secrets.RUN_SERVICE }}:${{ github.sha }}
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v0
+        with:
+          service: ${{ secrets.RUN_SERVICE }}
+          region: ${{ env.REGION }}
+          image: ${{ env.GAR_LOCATION }}.gcr.io/${{ env.PROJECT_ID }}/${{ secrets.RUN_SERVICE }}:${{ github.sha }}
+
+      - name: Show Output
+        run: echo ${{ steps.deploy.outputs.url }}

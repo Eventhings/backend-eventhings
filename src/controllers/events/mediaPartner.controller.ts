@@ -1,6 +1,5 @@
 import { Response } from "express";
 import { dbQuery } from "../../db";
-import { uploadFile } from "../../gcloud";
 import {
 	EventsData,
 	EventsFilter,
@@ -9,6 +8,7 @@ import {
 	UpdateCreateMediaPartnerBody,
 	UserRole,
 } from "../../models";
+import { uploadFile } from "../../service";
 import { ApiError, ErrorCodes } from "../../utils";
 
 export const getAllMediaPartner = async ({
@@ -34,15 +34,18 @@ export const getAllMediaPartner = async ({
 			MEDIA_PARTNER_REVIEW r ON m.id = r.mp_id
 		WHERE 1 = 1
 	`;
+	const queryParams = [];
+
 	Object.keys(filter).map((val) => {
 		if (filter[val as keyof EventsFilter]) {
 			if (val == "name") {
-				query += ` AND ${val} ILIKE '%${
-					filter[val as keyof EventsFilter]
-				}%'`;
+				query += ` AND ${val} ILIKE '%' || $${
+					queryParams.length + 1
+				} || '%'`;
 			} else {
-				query += ` AND ${val} = '${filter[val as keyof EventsFilter]}'`;
+				query += ` AND ${val} = $${queryParams.length + 1}`;
 			}
+			queryParams.push(filter[val as keyof EventsFilter]);
 		}
 	});
 
@@ -59,7 +62,13 @@ export const getAllMediaPartner = async ({
 			});
 		}
 	}
-	const res = await dbQuery(`${query} LIMIT ${limit} OFFSET ${page * limit}`);
+
+	query += ` LIMIT $${queryParams.length + 1} OFFSET $${
+		queryParams.length + 2
+	}`;
+	queryParams.push(limit, page * limit);
+
+	const res = await dbQuery(query, queryParams);
 	const total = await dbQuery("SELECT COUNT(*) FROM media_partner");
 	const total_page = Math.ceil(total.rows[0].count / limit);
 	return {
@@ -73,19 +82,23 @@ export const getAllMediaPartner = async ({
 
 export const getMediaPartnerById = async ({ id }: { id: string }) => {
 	const media_partner = await dbQuery(
-		`SELECT * FROM media_partner WHERE id = '${id}'`
+		`SELECT * FROM media_partner WHERE id = $1`,
+		[id]
 	);
 
 	const media_partner_package = await dbQuery(
-		`SELECT * FROM media_partner_package WHERE mp_id = '${id}' ORDER BY name`
+		`SELECT * FROM media_partner_package WHERE mp_id = $1 ORDER BY name`,
+		[id]
 	);
 
 	const media_partner_social_media = await dbQuery(
-		`SELECT * FROM media_partner_social_media WHERE mp_id = '${id}' ORDER BY social_media`
+		`SELECT * FROM media_partner_social_media WHERE mp_id = $1 ORDER BY social_media`,
+		[id]
 	);
 
 	const media_partner_review = await dbQuery(
-		`SELECT * FROM media_partner_review WHERE mp_id = '${id}'`
+		`SELECT * FROM media_partner_review WHERE mp_id = $1`,
+		[id]
 	);
 
 	return {
@@ -146,7 +159,7 @@ export const createMediaPartner = async ({
 };
 
 export const deleteMediaPartner = async ({ id }: { id: string }) => {
-	await dbQuery(`DELETE FROM MEDIA_PARTNER WHERE id = '${id}'`);
+	await dbQuery(`DELETE FROM MEDIA_PARTNER WHERE id = $1`, [id]);
 	return null;
 };
 
@@ -314,9 +327,9 @@ export const deleteMediaPartnerPackage = async ({
 		creator_id.rows[0]?.created_by === res.locals.uid ||
 		res.locals.role === UserRole.ADMIN
 	) {
-		await dbQuery(
-			`DELETE FROM MEDIA_PARTNER_PACKAGE WHERE id = '${package_id}'`
-		);
+		await dbQuery(`DELETE FROM MEDIA_PARTNER_PACKAGE WHERE id = $1`, [
+			package_id,
+		]);
 		return null;
 	}
 
@@ -396,9 +409,9 @@ export const deleteMediaPartnerSocial = async ({
 		creator_id.rows[0]?.created_by === res.locals.uid ||
 		res.locals.role === UserRole.ADMIN
 	) {
-		await dbQuery(
-			`DELETE FROM MEDIA_PARTNER_SOCIAL_MEDIA WHERE id = '${social_id}'`
-		);
+		await dbQuery(`DELETE FROM MEDIA_PARTNER_SOCIAL_MEDIA WHERE id = $1`, [
+			social_id,
+		]);
 		return null;
 	}
 
@@ -476,9 +489,9 @@ export const deleteMediaPartnerReview = async ({
 		reviewer_id.rows[0]?.created_by === res.locals.uid ||
 		res.locals.role === UserRole.ADMIN
 	) {
-		await dbQuery(
-			`DELETE FROM MEDIA_PARTNER_REVIEW WHERE id = '${review_id}'`
-		);
+		await dbQuery(`DELETE FROM MEDIA_PARTNER_REVIEW WHERE id = $1`, [
+			review_id,
+		]);
 		return null;
 	}
 

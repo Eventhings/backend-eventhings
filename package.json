@@ -22,7 +22,8 @@
     "express-body-parser-error-handler": "^1.0.7",
     "firebase": "^10.6.0",
     "firebase-admin": "^11.11.1",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "socket.io": "^4.7.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.15",
