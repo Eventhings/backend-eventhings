@@ -27,29 +27,42 @@ export const getAllMediaPartner = async ({
 	let query = `
 		SELECT
 			m.*,
-			AVG(r.rating) AS average_rating
+			AVG(r.rating) AS average_rating,
+			COALESCE(MIN(p.price), 0) AS min_price
 		FROM
 			MEDIA_PARTNER m
 		LEFT JOIN
 			MEDIA_PARTNER_REVIEW r ON m.id = r.mp_id
+		LEFT JOIN
+			MEDIA_PARTNER_PACKAGE p ON m.id = r.mp_id
 		WHERE 1 = 1
 	`;
 	const queryParams = [];
 
-	Object.keys(filter).map((val) => {
-		if (filter[val as keyof EventsFilter]) {
-			if (val == "name") {
-				query += ` AND ${val} ILIKE '%' || $${
-					queryParams.length + 1
-				} || '%'`;
-			} else {
-				query += ` AND ${val} = $${queryParams.length + 1}`;
+	Object.keys(filter)
+		.filter((val) => val !== "fees")
+		.map((val) => {
+			if (filter[val as keyof EventsFilter]) {
+				if (val == "name") {
+					query += ` AND ${val} ILIKE '%' || $${
+						queryParams.length + 1
+					} || '%'`;
+				} else {
+					query += ` AND ${val} = $${queryParams.length + 1}`;
+				}
+
+				queryParams.push(filter[val as keyof EventsFilter]);
 			}
-			queryParams.push(filter[val as keyof EventsFilter]);
-		}
-	});
+		});
 
 	query += ` GROUP BY m.id`;
+
+	if (filter["fees"]) {
+		query += ` HAVING COALESCE(MIN(p.price), 0) <= $${
+			queryParams.length + 1
+		}`;
+		queryParams.push(filter["fees"] === "free" ? 0 : 9999999999999);
+	}
 
 	if (sort_by && sort_method) {
 		const allowedSortMethods = ["asc", "desc"];
@@ -62,6 +75,7 @@ export const getAllMediaPartner = async ({
 			});
 		}
 	}
+	const total = await dbQuery(`SELECT COUNT(*) FROM (${query})`, queryParams);
 
 	query += ` LIMIT $${queryParams.length + 1} OFFSET $${
 		queryParams.length + 2
@@ -69,7 +83,6 @@ export const getAllMediaPartner = async ({
 	queryParams.push(limit, page * limit);
 
 	const res = await dbQuery(query, queryParams);
-	const total = await dbQuery("SELECT COUNT(*) FROM media_partner");
 	const total_page = Math.ceil(total.rows[0].count / limit);
 	return {
 		total: parseInt(total.rows[0].count ?? 0),
@@ -246,6 +259,40 @@ export const activateMediaPartner = async ({
 			SET is_active = $1
 			WHERE id = $2`,
 			[is_active, mp_id]
+		);
+
+		return null;
+	}
+
+	throw new ApiError({
+		code: ErrorCodes.unauthorizedErrorCode,
+		details: "Unauthorized",
+	});
+};
+
+export const archiveMediaPartner = async ({
+	mp_id,
+	is_archived,
+	res,
+}: {
+	mp_id: string;
+	is_archived: boolean;
+	res: Response;
+}) => {
+	const creator_id = await dbQuery(
+		`SELECT created_by FROM MEDIA_PARTNER WHERE id = $1`,
+		[mp_id]
+	);
+
+	if (
+		creator_id.rows[0]?.created_by === res.locals.uid ||
+		res.locals.role === UserRole.ADMIN
+	) {
+		await dbQuery(
+			`UPDATE MEDIA_PARTNER
+			SET is_archived = $1
+			WHERE id = $2`,
+			[is_archived, mp_id]
 		);
 
 		return null;
