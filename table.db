@@ -166,7 +166,8 @@ CREATE TABLE RENTALS (
     updated_by VARCHAR(255),
     created_at TIMESTAMP DEFAULT current_timestamp, 
     is_approved BOOLEAN DEFAULT false,
-    is_active BOOLEAN DEFAULT true
+    is_active BOOLEAN DEFAULT true,
+    is_archived BOOLEAN DEFAULT false
 );
 
 CREATE TABLE RENTALS_SOCIAL_MEDIA (
