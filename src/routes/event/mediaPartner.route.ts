@@ -98,7 +98,7 @@ mediaPartnerRoute.get(
 				apiError = err as ApiError;
 			}
 
-			return apiError;
+			throw apiError;
 		}
 	})
 );
