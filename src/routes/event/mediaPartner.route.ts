@@ -36,6 +36,8 @@ mediaPartnerRoute.get(
 					name: (params.name as string) ?? undefined,
 					field: (params.field as string) ?? undefined,
 					is_active: (params.is_active as string) ?? undefined,
+					is_approved: (params.is_approved as string) ?? undefined,
+					fees: (params.fees as "paid" | "free") ?? undefined,
 				},
 				sort_by: (params.sort_by as string) ?? undefined,
 				sort_method: (params.sort_method as string) ?? undefined,

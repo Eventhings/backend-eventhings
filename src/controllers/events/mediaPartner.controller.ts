@@ -27,30 +27,44 @@ export const getAllMediaPartner = async ({
 	let query = `
 		SELECT
 			m.*,
-			AVG(r.rating) AS average_rating
+			AVG(r.rating) AS average_rating,
+			COALESCE(MIN(p.price), 0) AS min_price
 		FROM
 			MEDIA_PARTNER m
 		LEFT JOIN
 			MEDIA_PARTNER_REVIEW r ON m.id = r.mp_id
+		LEFT JOIN
+			MEDIA_PARTNER_PACKAGE p ON m.id = r.mp_id
 		WHERE 1 = 1
 	`;
 	const queryParams = [];
 
-	Object.keys(filter).map((val) => {
-		if (filter[val as keyof EventsFilter]) {
-			if (val == "name") {
-				query += ` AND ${val} ILIKE '%' || $${
-					queryParams.length + 1
-				} || '%'`;
-			} else {
-				query += ` AND ${val} = $${queryParams.length + 1}`;
+	Object.keys(filter)
+		.filter((val) => val !== "fees")
+		.map((val) => {
+			if (filter[val as keyof EventsFilter]) {
+				if (val == "name") {
+					query += ` AND ${val} ILIKE '%' || $${
+						queryParams.length + 1
+					} || '%'`;
+				} else {
+					query += ` AND ${val} = $${queryParams.length + 1}`;
+				}
+
+				queryParams.push(filter[val as keyof EventsFilter]);
 			}
-			queryParams.push(filter[val as keyof EventsFilter]);
-		}
-	});
+		});
 
 	query += ` GROUP BY m.id`;
 
+	if (filter["fees"]) {
+		query += ` HAVING COALESCE(MIN(p.price), 0) <= $${
+			queryParams.length + 1
+		}`;
+		queryParams.push(filter["fees"] === "free" ? 0 : 9999999999999);
+	}
+
+	console.log(query, queryParams);
 	if (sort_by && sort_method) {
 		const allowedSortMethods = ["asc", "desc"];
 		if (allowedSortMethods.includes(sort_method.toLowerCase())) {

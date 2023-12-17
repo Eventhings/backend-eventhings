@@ -35,4 +35,6 @@ export type EventsFilter = {
 	name: string;
 	field: string;
 	is_active: string;
+	is_approved: string;
+	fees: "paid" | "free";
 };
