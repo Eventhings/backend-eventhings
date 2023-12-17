@@ -188,7 +188,7 @@ userRoutes.post(
 
 			return {
 				status: 200,
-				data: { refresh_token: new_token },
+				data: { access_token: new_token },
 				message: `refreshed token successfully`,
 			};
 		} catch (err) {
