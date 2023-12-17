@@ -37,5 +37,6 @@ export type EventsFilter = {
 	is_active: string;
 	is_approved: string;
 	is_archived: string;
+	created_by: string;
 	fees: "paid" | "free";
 };
