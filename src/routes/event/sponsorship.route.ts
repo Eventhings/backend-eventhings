@@ -36,6 +36,7 @@ sponsorshipRoute.get(
 					is_active: (params.is_active as string) ?? undefined,
 					is_approved: (params.is_approved as string) ?? undefined,
 					is_archived: (params.is_archived as string) ?? undefined,
+					created_by: (params.created_by as string) ?? undefined,
 				},
 				sort_by: (params.sort_by as string) ?? undefined,
 				sort_method: (params.sort_method as string) ?? undefined,
