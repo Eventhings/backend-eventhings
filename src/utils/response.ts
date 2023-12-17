@@ -17,22 +17,6 @@ type ErrorCodeMap = {
 	};
 };
 
-export const eventhingsResponse =
-	(fn: Function) =>
-	async (req: Request, res: Response, next: NextFunction) => {
-		try {
-			const { status = 200, data, message } = await fn(req, res);
-			res.status(status).send({
-				success: true,
-				data: data,
-				status: status,
-				message: message,
-			});
-		} catch (err) {
-			next(err);
-		}
-	};
-
 export const errors: ErrorCodeMap = {
 	[ErrorCodes.badRequestErrorCode]: {
 		status: 400,
@@ -63,6 +47,22 @@ export const errors: ErrorCodeMap = {
 		message: `Too many requests in this timeframe`,
 	},
 };
+
+export const eventhingsResponse =
+	(fn: Function) =>
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { status = 200, data, message } = await fn(req, res);
+			res.status(status).send({
+				success: true,
+				data: data,
+				status: status,
+				message: message,
+			});
+		} catch (err) {
+			next(err);
+		}
+	};
 
 export class ApiError extends Error {
 	code: ErrorCodes;

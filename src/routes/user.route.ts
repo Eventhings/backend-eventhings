@@ -1,4 +1,6 @@
 import express, { Request, Response } from "express";
+import { ZodError } from "zod";
+import { fromZodError } from "zod-validation-error";
 import {
 	getAllUser,
 	getUserMe,
@@ -7,7 +9,7 @@ import {
 	registerUser,
 } from "../controllers";
 import { isAuthenticated, isAuthorized } from "../middlewares";
-import { UserRole } from "../models";
+import { UserRole, UserSchema } from "../models";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../utils";
 
 export const userRoutes = express.Router();
@@ -112,6 +114,10 @@ userRoutes.post(
 	eventhingsResponse(async (req: Request) => {
 		try {
 			const { email, password } = req.body;
+			UserSchema.parse({
+				email,
+				password,
+			});
 
 			if (!password || !email) {
 				throw new ApiError({
@@ -131,11 +137,18 @@ userRoutes.post(
 				code: ErrorCodes.internalServerErrorCode,
 			});
 
+			if (err instanceof ZodError) {
+				apiError = new ApiError({
+					code: ErrorCodes.badRequestErrorCode,
+					message: fromZodError(err).message,
+				});
+			}
+
 			if ((err as ApiError).code) {
 				apiError = err as ApiError;
 			}
 
-			return apiError;
+			throw apiError;
 		}
 	})
 );
@@ -145,6 +158,11 @@ userRoutes.post(
 	eventhingsResponse(async (req: Request) => {
 		try {
 			const { email, password } = req.body;
+
+			UserSchema.parse({
+				email,
+				password,
+			});
 
 			if (!password || !email) {
 				throw new ApiError({
@@ -164,11 +182,18 @@ userRoutes.post(
 				code: ErrorCodes.internalServerErrorCode,
 			});
 
+			if (err instanceof ZodError) {
+				apiError = new ApiError({
+					code: ErrorCodes.badRequestErrorCode,
+					message: fromZodError(err).message,
+				});
+			}
+
 			if ((err as ApiError).code) {
 				apiError = err as ApiError;
 			}
 
-			return apiError;
+			throw apiError;
 		}
 	})
 );
@@ -195,6 +220,13 @@ userRoutes.post(
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
 			});
+
+			if (err instanceof ZodError) {
+				apiError = new ApiError({
+					code: ErrorCodes.badRequestErrorCode,
+					message: fromZodError(err).message,
+				});
+			}
 
 			if ((err as ApiError).code) {
 				apiError = err as ApiError;
