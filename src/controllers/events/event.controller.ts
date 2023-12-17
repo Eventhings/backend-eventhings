@@ -86,11 +86,13 @@ export const getAllEventService = async ({
 
 	queryParams.push(limit, page * limit);
 
-	console.log(query_all);
 	const res = await dbQuery(query_all, queryParams);
-	const total = await dbQuery(`SELECT COUNT(*) FROM (
-        SELECT id FROM MEDIA_PARTNER UNION ALL SELECT id FROM SPONSORSHIP
-    )`);
+	const total = await dbQuery(
+		`SELECT COUNT(*) FROM (
+		${query_all}
+    )`,
+		queryParams
+	);
 	const total_page = Math.ceil(total.rows[0].count / limit);
 	return {
 		total: parseInt(total.rows[0].count ?? 0),

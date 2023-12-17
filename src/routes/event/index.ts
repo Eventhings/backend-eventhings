@@ -34,6 +34,7 @@ eventRoutes.get(
 					field: (params.field as string) ?? undefined,
 					is_active: (params.is_active as string) ?? undefined,
 					is_approved: (params.is_approved as string) ?? undefined,
+					is_archived: (params.is_archived as string) ?? undefined,
 					fees: (params.fees as "paid" | "free") ?? undefined,
 				},
 				sort_by: (params.sort_by as string) ?? undefined,
@@ -44,7 +45,7 @@ eventRoutes.get(
 				data: {
 					...res,
 				},
-				message: "Get all media partner successfully",
+				message: "Get all event services successfully",
 			};
 		} catch (err) {
 			let apiError = new ApiError({

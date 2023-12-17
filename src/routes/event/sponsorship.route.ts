@@ -5,6 +5,7 @@ import {
 	addSponsorshipReview,
 	addSponsorshipSocial,
 	approveSponsorship,
+	archiveSponsorship,
 	createSponsorship,
 	deleteMediaPartner,
 	deleteSponsorshipReview,
@@ -33,6 +34,8 @@ sponsorshipRoute.get(
 					name: (params.name as string) ?? undefined,
 					field: (params.field as string) ?? undefined,
 					is_active: (params.is_active as string) ?? undefined,
+					is_approved: (params.is_approved as string) ?? undefined,
+					is_archived: (params.is_archived as string) ?? undefined,
 				},
 				sort_by: (params.sort_by as string) ?? undefined,
 				sort_method: (params.sort_method as string) ?? undefined,
@@ -245,6 +248,40 @@ sponsorshipRoute.post(
 				message: `${
 					body.is_active ?? true ? "Activated" : "Deactivated"
 				} sponsorship ${sp_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		}
+	})
+);
+
+sponsorshipRoute.post(
+	"/:id/archive",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const sp_id = req.params.id;
+			const body = await req.body;
+
+			const data = await archiveSponsorship({
+				sp_id,
+				is_archived: body.is_archived ?? true,
+				res,
+			});
+
+			return {
+				status: 200,
+				data: data,
+				message: `${
+					body.is_archived ?? true ? "Archived" : "Unarchived"
+				} media partner ${sp_id} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({

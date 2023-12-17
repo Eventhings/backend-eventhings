@@ -33,8 +33,7 @@ export const getAllSponsorship = async ({
 			sponsorship_review r ON s.id = r.sp_id
 		WHERE 1 = 1
 	`;
-
-	const queryParams = [];
+	const queryParams: any[] = [];
 
 	Object.keys(filter).map((val) => {
 		if (filter[val as keyof EventsFilter]) {
@@ -62,6 +61,7 @@ export const getAllSponsorship = async ({
 			});
 		}
 	}
+	const total = await dbQuery(`SELECT COUNT(*) FROM (${query})`, queryParams);
 
 	query += ` LIMIT $${queryParams.length + 1} OFFSET $${
 		queryParams.length + 2
@@ -69,7 +69,6 @@ export const getAllSponsorship = async ({
 	queryParams.push(limit, page * limit);
 
 	const res = await dbQuery(query, queryParams);
-	const total = await dbQuery("SELECT COUNT(*) FROM sponsorship");
 	const total_page = Math.ceil(total.rows[0].count / limit);
 	return {
 		total: parseInt(total.rows[0].count ?? 0),
@@ -232,6 +231,40 @@ export const activateSponsorship = async ({
 			SET is_active = $1
 			WHERE id = $2`,
 			[is_active, sp_id]
+		);
+
+		return null;
+	}
+
+	throw new ApiError({
+		code: ErrorCodes.unauthorizedErrorCode,
+		details: "Unauthorized",
+	});
+};
+
+export const archiveSponsorship = async ({
+	sp_id,
+	is_archived,
+	res,
+}: {
+	sp_id: string;
+	is_archived: boolean;
+	res: Response;
+}) => {
+	const creator_id = await dbQuery(
+		`SELECT created_by FROM SPONSORSHIP WHERE id = $1`,
+		[sp_id]
+	);
+
+	if (
+		creator_id.rows[0]?.created_by === res.locals.uid ||
+		res.locals.role === UserRole.ADMIN
+	) {
+		await dbQuery(
+			`UPDATE SPONSORSHIP
+			SET is_archived = $1
+			WHERE id = $2`,
+			[is_archived, sp_id]
 		);
 
 		return null;
