@@ -193,6 +193,18 @@ CREATE TABLE RENTALS_PACKAGE (
     price FLOAT NOT NULL
 );
 
+CREATE TABLE RENTALS_IMAGE (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    package_id UUID NOT NULL,
+    CONSTRAINT fk_package
+      FOREIGN KEY(package_id) 
+      REFERENCES RENTALS_PACKAGE(id)
+      ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255),
+    image_url VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE RENTALS_REVIEW (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     rt_id UUID NOT NULL,
