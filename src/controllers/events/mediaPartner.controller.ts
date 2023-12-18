@@ -43,7 +43,7 @@ export const getAllMediaPartner = async ({
 		.map((val) => {
 			if (filter[val as keyof EventsFilter]) {
 				if (val == "name") {
-					query += ` AND ${val} ILIKE '%' || $${
+					query += ` AND m.${val} ILIKE '%' || $${
 						queryParams.length + 1
 					} || '%'`;
 				} else {
@@ -74,6 +74,7 @@ export const getAllMediaPartner = async ({
 			});
 		}
 	}
+
 	const total = await dbQuery(
 		`SELECT COUNT(*) FROM (${query}) as media_partners`,
 		queryParams
@@ -83,7 +84,6 @@ export const getAllMediaPartner = async ({
 		queryParams.length + 2
 	}`;
 	queryParams.push(limit, page * limit);
-
 	const res = await dbQuery(query, queryParams);
 	const total_page = Math.ceil(total.rows[0].count / limit);
 	return {

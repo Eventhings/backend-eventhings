@@ -132,14 +132,6 @@ export const createSponsorship = async ({
 
 	const sp_id = sponsorship_results.rows[0]?.id;
 
-	for (const val of data.social_media || []) {
-		await dbQuery(
-			`INSERT INTO SPONSORSHIP_SOCIAL_MEDIA (sp_id, social_media, link)
-			VALUES ($1, $2, $3)`,
-			[sp_id, val.social_media, val.link]
-		);
-	}
-
 	const { logo, ...output } = data;
 
 	return { id: sp_id, data: { logo_url: logo_url, ...output } };
