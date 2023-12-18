@@ -90,7 +90,7 @@ export const getAllEventService = async ({
 	const total = await dbQuery(
 		`SELECT COUNT(*) FROM (
 		${query_all}
-    )`,
+    ) as services`,
 		queryParams
 	);
 	const total_page = Math.ceil(total.rows[0].count / limit);

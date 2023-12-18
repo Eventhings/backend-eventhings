@@ -75,7 +75,10 @@ export const getAllMediaPartner = async ({
 			});
 		}
 	}
-	const total = await dbQuery(`SELECT COUNT(*) FROM (${query})`, queryParams);
+	const total = await dbQuery(
+		`SELECT COUNT(*) FROM (${query}) as media_partners`,
+		queryParams
+	);
 
 	query += ` LIMIT $${queryParams.length + 1} OFFSET $${
 		queryParams.length + 2

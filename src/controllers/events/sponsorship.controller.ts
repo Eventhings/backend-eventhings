@@ -61,7 +61,10 @@ export const getAllSponsorship = async ({
 			});
 		}
 	}
-	const total = await dbQuery(`SELECT COUNT(*) FROM (${query})`, queryParams);
+	const total = await dbQuery(
+		`SELECT COUNT(*) FROM (${query}) as sponsorships`,
+		queryParams
+	);
 
 	query += ` LIMIT $${queryParams.length + 1} OFFSET $${
 		queryParams.length + 2
