@@ -15,6 +15,17 @@ export enum UserRole {
 	BUSINESS = "business",
 }
 
+export enum ServiceType {
+	MEDIA_PARTNER = "media_partner",
+	SPONSORSHIP = "sponsorship",
+	RENTALS = "rentals",
+}
+
+export enum PurchaseStatus {
+	PENDING = "PENDING",
+	SUCCESS = "SUCCESS",
+}
+
 export type EventsData = {
 	id: string;
 	logo_url?: string;
