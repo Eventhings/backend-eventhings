@@ -3,7 +3,8 @@ import { ApiError, ErrorCodes, eventhingsResponse } from "../utils";
 import chatRoutes from "./chat";
 import eventRoutes from "./event";
 import purchaseRoute from "./purchase";
-import { userRoutes } from "./user.route";
+import savedRoute from "./saved";
+import userRoutes from "./user.route";
 
 const routes = express.Router();
 
@@ -23,6 +24,10 @@ const defaultRoutes = [
 	{
 		path: "/purchase",
 		route: purchaseRoute,
+	},
+	{
+		path: "/saved",
+		route: savedRoute,
 	},
 ];
 
