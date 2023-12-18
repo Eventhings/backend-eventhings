@@ -135,3 +135,12 @@ CREATE TABLE PURCHASE_ITEM (
 	package_id UUID not null,
 	quantity integer not null
 );
+
+drop table if exists USER_SAVED_SERVICE CASCADE;
+
+CREATE TABLE USER_SAVED_SERVICE (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    service_id UUID not null,
+    user_id VARCHAR(255) NOT NULL,
+    service_type VARCHAR(255) not null
+)

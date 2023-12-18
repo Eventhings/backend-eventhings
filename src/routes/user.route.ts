@@ -12,7 +12,7 @@ import { isAuthenticated, isAuthorized } from "../middlewares";
 import { UserRole, UserSchema } from "../models";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../utils";
 
-export const userRoutes = express.Router();
+const userRoutes = express.Router();
 
 userRoutes.get(
 	"/me",
@@ -236,3 +236,5 @@ userRoutes.post(
 		}
 	})
 );
+
+export default userRoutes;
