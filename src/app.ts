@@ -3,7 +3,6 @@ import "dotenv/config";
 import express from "express";
 
 import { createServer } from "http";
-import { protectEndpoint } from "./middlewares";
 import errorHandler from "./middlewares/errorHandlers";
 import routes from "./routes";
 import { initFirebase } from "./service";
@@ -21,12 +20,11 @@ app.options("*", cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(protectEndpoint);
+// app.use(protectEndpoint);
 app.use("/", routes);
 app.use(errorHandler);
 
-
-const port = parseInt(process.env.PORT ?? '8081');
+const port = parseInt(process.env.PORT ?? "8080");
 app.listen(port, () => {
-    console.log(`helloworld: listening on port ${port}`);
+	console.log(`listening on port ${port}`);
 });

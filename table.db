@@ -2,7 +2,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 drop table if exists MEDIA_PARTNER CASCADE;
 drop table if exists MEDIA_PARTNER_PACKAGE CASCADE;
-drop table if exists MEDIA_PARTNER_SOCIAL_MEDIA CASCADE;
 drop table if exists MEDIA_PARTNER_REVIEW CASCADE;
 
 CREATE TABLE MEDIA_PARTNER (
@@ -53,7 +52,6 @@ CREATE TABLE MEDIA_PARTNER_REVIEW (
 );
 
 drop table if exists SPONSORSHIP CASCADE;
-drop table if exists SPONSORSHIP_SOCIAL_MEDIA CASCADE;
 drop table if exists SPONSORSHIP_REVIEW CASCADE;
 
 CREATE TABLE SPONSORSHIP (
@@ -112,4 +110,28 @@ CREATE TABLE CHAT_MESSAGE (
         ON DELETE cascade,
     user_id VARCHAR(255) NOT NULL,
     message VARCHAR(255) NOT NULL
+);
+
+drop table if exists USER_PURCHASES CASCADE;
+drop table if exists PURCHASE_ITEM CASCADE;
+
+CREATE TABLE USER_PURCHASES (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+	created_at TIMESTAMP DEFAULT current_timestamp,
+	user_id VARCHAR(255) not null,
+	service_id UUID not null,
+	service_type VARCHAR(255) not null, 
+    status VARCHAR(255),
+    payment_link VARCHAR(255)
+);
+
+CREATE TABLE PURCHASE_ITEM (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+	purchase_id UUID NOT NULL,
+    CONSTRAINT fk_purchase_id
+        FOREIGN KEY(purchase_id) 
+        REFERENCES USER_PURCHASES(id)
+        ON DELETE cascade,
+	package_id UUID not null,
+	quantity integer not null
 );
