@@ -3,18 +3,15 @@ import express, { Request, Response } from "express";
 import {
 	activateSponsorship,
 	addSponsorshipReview,
-	addSponsorshipSocial,
 	approveSponsorship,
 	archiveSponsorship,
 	createSponsorship,
 	deleteMediaPartner,
 	deleteSponsorshipReview,
-	deleteSponsorshipSocial,
 	getAllSponsorship,
 	getSponsorshipById,
 	updateSponsorship,
 	updateSponsorshipReview,
-	updateSponsorshipSocial,
 } from "../../controllers";
 import { isAuthenticated, isAuthorized } from "../../middlewares";
 import { UserRole } from "../../models";
@@ -121,38 +118,6 @@ sponsorshipRoute.post(
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
 				details: "Failed to create sponsorship",
-			});
-			if ((err as ApiError).code) {
-				apiError = err as ApiError;
-			}
-			throw apiError;
-		}
-	})
-);
-
-sponsorshipRoute.post(
-	"/:id/social",
-	isAuthenticated,
-	eventhingsResponse(async (req: Request) => {
-		try {
-			const body = await req.body;
-			const sp_id = req.params.id;
-			const data = await addSponsorshipSocial({
-				data: body.socials,
-				sp_id,
-			});
-
-			return {
-				status: 200,
-				data: {
-					...data,
-				},
-				message: `Added social media to sponsorship ${sp_id} successfully`,
-			};
-		} catch (err) {
-			let apiError = new ApiError({
-				code: ErrorCodes.internalServerErrorCode,
-				details: "Failed to add sponsorship package",
 			});
 			if ((err as ApiError).code) {
 				apiError = err as ApiError;
@@ -324,38 +289,6 @@ sponsorshipRoute.delete(
 );
 
 sponsorshipRoute.delete(
-	"/:id/social/:social_id",
-	isAuthenticated,
-	eventhingsResponse(async (req: Request, res: Response) => {
-		try {
-			const sp_id = req.params.id;
-			const social_id = req.params.social_id;
-
-			await deleteSponsorshipSocial({
-				social_id,
-				sp_id,
-				res,
-			});
-
-			return {
-				status: 200,
-				data: null,
-				message: `Deleted media partner social media ${social_id} for media partner ${sp_id} successfully`,
-			};
-		} catch (err) {
-			let apiError = new ApiError({
-				code: ErrorCodes.internalServerErrorCode,
-				details: "Failed to add media partner package",
-			});
-			if ((err as ApiError).code) {
-				apiError = err as ApiError;
-			}
-			throw apiError;
-		}
-	})
-);
-
-sponsorshipRoute.delete(
 	"/:id/review/:review_id",
 	isAuthenticated,
 	eventhingsResponse(async (req: Request, res: Response) => {
@@ -400,40 +333,6 @@ sponsorshipRoute.patch(
 				status: 200,
 				data: data,
 				message: `Update media partner ${sp_id} successfully`,
-			};
-		} catch (err) {
-			let apiError = new ApiError({
-				code: ErrorCodes.internalServerErrorCode,
-				details: "",
-			});
-			if ((err as ApiError).code) {
-				apiError = err as ApiError;
-			}
-			throw apiError;
-		}
-	})
-);
-
-sponsorshipRoute.patch(
-	"/:id/social/:social_id",
-	isAuthenticated,
-	eventhingsResponse(async (req: Request, res: Response) => {
-		try {
-			const sp_id = req.params.id;
-			const social_id = req.params.social_id;
-			const body = await req.body;
-
-			const data = await updateSponsorshipSocial({
-				social_id,
-				sp_id,
-				data: body,
-				res,
-			});
-
-			return {
-				status: 200,
-				data: data,
-				message: `Update media partner social media ${social_id} for media partner ${sp_id} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({

@@ -4,20 +4,17 @@ import {
 	activateMediaPartner,
 	addMediaPartnerPackage,
 	addMediaPartnerReview,
-	addMediaPartnerSocial,
 	approveMediaPartner,
 	archiveMediaPartner,
 	createMediaPartner,
 	deleteMediaPartner,
 	deleteMediaPartnerPackage,
 	deleteMediaPartnerReview,
-	deleteMediaPartnerSocial,
 	getAllMediaPartner,
 	getMediaPartnerById,
 	updateMediaPartner,
 	updateMediaPartnerPackage,
 	updateMediaPartnerReview,
-	updateMediaPartnerSocial,
 } from "../../controllers";
 import { isAuthenticated, isAuthorized } from "../../middlewares";
 import { UserRole } from "../../models";
@@ -157,38 +154,6 @@ mediaPartnerRoute.post(
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
 				details: "Failed to add media partner package",
-			});
-			if ((err as ApiError).code) {
-				apiError = err as ApiError;
-			}
-			throw apiError;
-		}
-	})
-);
-
-mediaPartnerRoute.post(
-	"/:id/social",
-	isAuthenticated,
-	eventhingsResponse(async (req: Request) => {
-		try {
-			const body = await req.body;
-			const mp_id = req.params.id;
-			const data = await addMediaPartnerSocial({
-				data: body.socials,
-				mp_id,
-			});
-
-			return {
-				status: 200,
-				data: {
-					...data,
-				},
-				message: `Added social media to media partner ${mp_id} successfully`,
-			};
-		} catch (err) {
-			let apiError = new ApiError({
-				code: ErrorCodes.internalServerErrorCode,
-				details: "Failed to add media partner social media",
 			});
 			if ((err as ApiError).code) {
 				apiError = err as ApiError;
@@ -392,38 +357,6 @@ mediaPartnerRoute.delete(
 );
 
 mediaPartnerRoute.delete(
-	"/:id/social/:social_id",
-	isAuthenticated,
-	eventhingsResponse(async (req: Request, res: Response) => {
-		try {
-			const mp_id = req.params.id;
-			const social_id = req.params.social_id;
-
-			await deleteMediaPartnerSocial({
-				social_id,
-				mp_id,
-				res,
-			});
-
-			return {
-				status: 200,
-				data: null,
-				message: `Deleted media partner social media ${social_id} for media partner ${mp_id} successfully`,
-			};
-		} catch (err) {
-			let apiError = new ApiError({
-				code: ErrorCodes.internalServerErrorCode,
-				details: "Failed to add media partner package",
-			});
-			if ((err as ApiError).code) {
-				apiError = err as ApiError;
-			}
-			throw apiError;
-		}
-	})
-);
-
-mediaPartnerRoute.delete(
 	"/:id/review/:review_id",
 	isAuthenticated,
 	eventhingsResponse(async (req: Request, res: Response) => {
@@ -502,40 +435,6 @@ mediaPartnerRoute.patch(
 				status: 200,
 				data: data,
 				message: `Update media partner page ${package_id} for media partner ${mp_id} successfully`,
-			};
-		} catch (err) {
-			let apiError = new ApiError({
-				code: ErrorCodes.internalServerErrorCode,
-				details: "",
-			});
-			if ((err as ApiError).code) {
-				apiError = err as ApiError;
-			}
-			throw apiError;
-		}
-	})
-);
-
-mediaPartnerRoute.patch(
-	"/:id/social/:social_id",
-	isAuthenticated,
-	eventhingsResponse(async (req: Request, res: Response) => {
-		try {
-			const mp_id = req.params.id;
-			const social_id = req.params.social_id;
-			const body = await req.body;
-
-			const data = await updateMediaPartnerSocial({
-				social_id,
-				mp_id,
-				data: body,
-				res,
-			});
-
-			return {
-				status: 200,
-				data: data,
-				message: `Update media partner social media ${social_id} for media partner ${mp_id} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({

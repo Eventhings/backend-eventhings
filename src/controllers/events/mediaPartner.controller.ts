@@ -4,7 +4,6 @@ import {
 	EventsData,
 	EventsFilter,
 	MediaPartnerPackages,
-	SocialMedia,
 	UpdateCreateMediaPartnerBody,
 	UserRole,
 } from "../../models";
@@ -107,11 +106,6 @@ export const getMediaPartnerById = async ({ id }: { id: string }) => {
 		[id]
 	);
 
-	const media_partner_social_media = await dbQuery(
-		`SELECT * FROM media_partner_social_media WHERE mp_id = $1 ORDER BY social_media`,
-		[id]
-	);
-
 	const media_partner_review = await dbQuery(
 		`SELECT * FROM media_partner_review WHERE mp_id = $1`,
 		[id]
@@ -120,7 +114,6 @@ export const getMediaPartnerById = async ({ id }: { id: string }) => {
 	return {
 		...media_partner.rows[0],
 		packages: [...media_partner_package.rows],
-		social_media: [...media_partner_social_media.rows],
 		reviews: [...media_partner_review.rows],
 	};
 };
@@ -140,7 +133,7 @@ export const createMediaPartner = async ({
 	});
 
 	const media_partner_results = await dbQuery(
-		`INSERT INTO MEDIA_PARTNER (name, field, created_by, logo_url, description, value) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;`,
+		`INSERT INTO MEDIA_PARTNER (name, field, created_by, logo_url, description, value, email, line, twitter, whatsapp, instagram, website) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id;`,
 		[
 			data.name,
 			data.field,
@@ -148,6 +141,12 @@ export const createMediaPartner = async ({
 			logo_url,
 			data.description,
 			data.value,
+			data.email,
+			data.line,
+			data.twitter,
+			data.whatsapp,
+			data.instagram,
+			data.website,
 		]
 	);
 
@@ -158,14 +157,6 @@ export const createMediaPartner = async ({
 			`INSERT INTO MEDIA_PARTNER_PACKAGE (mp_id, name, description, price)
 			VALUES ($1, $2, $3, $4)`,
 			[mp_id, val.name, val.description, val.price]
-		);
-	}
-
-	for (const val of data.social_media || []) {
-		await dbQuery(
-			`INSERT INTO MEDIA_PARTNER_SOCIAL_MEDIA (mp_id, social_media, link)
-			VALUES ($1, $2, $3)`,
-			[mp_id, val.social_media, val.link]
 		);
 	}
 
@@ -379,88 +370,6 @@ export const deleteMediaPartnerPackage = async ({
 	) {
 		await dbQuery(`DELETE FROM MEDIA_PARTNER_PACKAGE WHERE id = $1`, [
 			package_id,
-		]);
-		return null;
-	}
-
-	throw new ApiError({
-		code: ErrorCodes.unauthorizedErrorCode,
-		details: "Unauthorized",
-	});
-};
-
-export const addMediaPartnerSocial = async ({
-	mp_id,
-	data,
-}: {
-	mp_id: string;
-	data: SocialMedia[];
-}) => {
-	for (const val of data || []) {
-		await dbQuery(
-			`INSERT INTO MEDIA_PARTNER_SOCIAL_MEDIA (mp_id, social_media, link)
-			VALUES ($1, $2, $3)`,
-			[mp_id, val.social_media, val.link]
-		);
-	}
-
-	return data;
-};
-
-export const updateMediaPartnerSocial = async ({
-	social_id,
-	mp_id,
-	data,
-	res,
-}: {
-	social_id: string;
-	mp_id: string;
-	data: SocialMedia;
-	res: Response;
-}) => {
-	const creator_id = await dbQuery(
-		`SELECT created_by FROM MEDIA_PARTNER WHERE id = $1`,
-		[mp_id]
-	);
-
-	if (
-		creator_id.rows[0]?.created_by === res.locals.uid ||
-		res.locals.role === UserRole.ADMIN
-	) {
-		await dbQuery(
-			`UPDATE MEDIA_PARTNER_SOCIAL_MEDIA
-			SET social_media = $1, link = $2
-			WHERE id = $3`,
-			[data.social_media, data.link, social_id]
-		);
-		return null;
-	}
-	throw new ApiError({
-		code: ErrorCodes.unauthorizedErrorCode,
-		details: "Unauthorized",
-	});
-};
-
-export const deleteMediaPartnerSocial = async ({
-	social_id,
-	mp_id,
-	res,
-}: {
-	social_id: string;
-	mp_id: string;
-	res: Response;
-}) => {
-	const creator_id = await dbQuery(
-		`SELECT created_by FROM MEDIA_PARTNER WHERE id = $1`,
-		[mp_id]
-	);
-
-	if (
-		creator_id.rows[0]?.created_by === res.locals.uid ||
-		res.locals.role === UserRole.ADMIN
-	) {
-		await dbQuery(`DELETE FROM MEDIA_PARTNER_SOCIAL_MEDIA WHERE id = $1`, [
-			social_id,
 		]);
 		return null;
 	}
