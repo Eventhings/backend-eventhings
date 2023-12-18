@@ -3,7 +3,6 @@ import { dbQuery } from "../../db";
 import {
 	EventsData,
 	EventsFilter,
-	SocialMedia,
 	UpdateCreateSponsorshipBody,
 	UserRole,
 } from "../../models";
@@ -88,11 +87,6 @@ export const getSponsorshipById = async ({ id }: { id: string }) => {
 		[id]
 	);
 
-	const sponsorship_social_media = await dbQuery(
-		`SELECT * FROM sponsorship_social_media WHERE sp_id = $1 ORDER BY social_media`,
-		[id]
-	);
-
 	const sponsorship_review = await dbQuery(
 		`SELECT * FROM sponsorship_review WHERE sp_id = $1`,
 		[id]
@@ -100,7 +94,6 @@ export const getSponsorshipById = async ({ id }: { id: string }) => {
 
 	return {
 		...sponsorship.rows[0],
-		social_media: [...sponsorship_social_media.rows],
 		reviews: [...sponsorship_review.rows],
 	};
 };
@@ -120,7 +113,7 @@ export const createSponsorship = async ({
 	});
 
 	const sponsorship_results = await dbQuery(
-		`INSERT INTO SPONSORSHIP (name, field, created_by, logo_url, description, value) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;`,
+		`INSERT INTO SPONSORSHIP (name, field, created_by, logo_url, description, value, email, line, twitter, whatsapp, instagram, website) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id;`,
 		[
 			data.name,
 			data.field,
@@ -128,6 +121,12 @@ export const createSponsorship = async ({
 			logo_url,
 			data.description,
 			data.value,
+			data.email,
+			data.line,
+			data.twitter,
+			data.whatsapp,
+			data.instagram,
+			data.website,
 		]
 	);
 
@@ -270,88 +269,6 @@ export const archiveSponsorship = async ({
 			[is_archived, sp_id]
 		);
 
-		return null;
-	}
-
-	throw new ApiError({
-		code: ErrorCodes.unauthorizedErrorCode,
-		details: "Unauthorized",
-	});
-};
-
-export const addSponsorshipSocial = async ({
-	sp_id,
-	data,
-}: {
-	sp_id: string;
-	data: SocialMedia[];
-}) => {
-	for (const val of data || []) {
-		await dbQuery(
-			`INSERT INTO SPONSORSHIP_SOCIAL_MEDIA (sp_id, social_media, link)
-			VALUES ($1, $2, $3)`,
-			[sp_id, val.social_media, val.link]
-		);
-	}
-
-	return data;
-};
-
-export const updateSponsorshipSocial = async ({
-	social_id,
-	sp_id,
-	data,
-	res,
-}: {
-	social_id: string;
-	sp_id: string;
-	data: SocialMedia;
-	res: Response;
-}) => {
-	const creator_id = await dbQuery(
-		`SELECT created_by FROM SPONSORSHIP WHERE id = $1`,
-		[sp_id]
-	);
-
-	if (
-		creator_id.rows[0]?.created_by === res.locals.uid ||
-		res.locals.role === UserRole.ADMIN
-	) {
-		await dbQuery(
-			`UPDATE SPONSORSHIP_SOCIAL_MEDIA
-			SET social_media = $1, link = $2
-			WHERE id = $3`,
-			[data.social_media, data.link, social_id]
-		);
-		return null;
-	}
-	throw new ApiError({
-		code: ErrorCodes.unauthorizedErrorCode,
-		details: "Unauthorized",
-	});
-};
-
-export const deleteSponsorshipSocial = async ({
-	social_id,
-	sp_id,
-	res,
-}: {
-	social_id: string;
-	sp_id: string;
-	res: Response;
-}) => {
-	const creator_id = await dbQuery(
-		`SELECT created_by FROM SPONSORSHIP WHERE id = $1`,
-		[sp_id]
-	);
-
-	if (
-		creator_id.rows[0]?.created_by === res.locals.uid ||
-		res.locals.role === UserRole.ADMIN
-	) {
-		await dbQuery(`DELETE FROM SPONSORSHIP_SOCIAL_MEDIA WHERE id = $1`, [
-			social_id,
-		]);
 		return null;
 	}
 

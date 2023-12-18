@@ -29,6 +29,12 @@ export type EventsData = {
 	field: string;
 	value: string;
 	description: string;
+	email: string;
+	line: string;
+	twitter: string;
+	whatsapp: string;
+	instagram: string;
+	website: string;
 };
 
 export type EventsFilter = {
