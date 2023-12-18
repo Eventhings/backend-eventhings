@@ -5,7 +5,7 @@ import { ApiError, ErrorCodes, eventhingsResponse } from "../../utils";
 const allServiceRoute = express.Router();
 
 allServiceRoute.get(
-	"/all",
+	"/",
 	eventhingsResponse(async (req: Request) => {
 		try {
 			const params = await req.query;

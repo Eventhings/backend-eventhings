@@ -7,7 +7,7 @@ const eventRoutes = express.Router();
 
 const defaultRoutes = [
 	{
-		path: "all",
+		path: "/all",
 		route: allServiceRoute,
 	},
 	{
