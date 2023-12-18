@@ -3,6 +3,66 @@ import { dbQuery } from "../../db";
 import { ServiceType } from "../../models";
 import { UpdateCreateUserPurchase } from "../../models/purchase/purchase.model";
 
+export const getAllUserPurchase = async ({ userId }: { userId: string }) => {
+	const user_purchases = await dbQuery(
+		`
+	SELECT up.id AS user_purchase_id,
+		up.created_at,
+		up.user_id,
+		up.service_id,
+		up.service_type,
+		up.status,
+		up.payment_link,
+		up.total,
+		coalesce(mp.name, sp.name) AS partner_name
+	FROM USER_PURCHASES up
+	LEFT JOIN (
+		SELECT 'media_partner' AS service_type, mp.id, mp.name 
+		FROM MEDIA_PARTNER mp
+	) mp ON up.service_id = mp.id AND up.service_type = mp.service_type
+	LEFT JOIN (
+		SELECT 'sponsorship' AS service_type, sp.id, sp.name 
+		FROM sponsorship sp
+	) sp ON up.service_id = sp.id AND up.service_type = sp.service_type 
+	WHERE user_id = $1;
+`,
+		[userId]
+	);
+	return user_purchases;
+};
+
+export const getAllServicePurchase = async ({
+	serviceId,
+}: {
+	serviceId: string;
+}) => {
+	const service_purchase = await dbQuery(
+		`
+	SELECT up.id AS user_purchase_id,
+		up.created_at,
+		up.user_id,
+		up.service_id,
+		up.service_type,
+		up.status,
+		up.payment_link,
+		up.total,
+		coalesce(mp.name, sp.name) AS partner_name
+	FROM USER_PURCHASES up
+	LEFT JOIN (
+		SELECT 'media_partner' AS service_type, mp.id, mp.name 
+		FROM MEDIA_PARTNER mp
+	) mp ON up.service_id = mp.id AND up.service_type = mp.service_type
+	LEFT JOIN (
+		SELECT 'sponsorship' AS service_type, sp.id, sp.name 
+		FROM sponsorship sp
+	) sp ON up.service_id = sp.id AND up.service_type = sp.service_type 
+	WHERE service_id = $1;
+`,
+		[serviceId]
+	);
+	return service_purchase;
+};
+
 export const createUserPurchase = async ({
 	data,
 }: {
@@ -120,10 +180,10 @@ export const createUserPurchase = async ({
 	await dbQuery(
 		`
 		UPDATE USER_PURCHASES 
-		SET payment_link = $1
-		WHERE id = $2
+		SET payment_link = $1, total = $2
+		WHERE id = $3
 	`,
-		[purchase_link?.data.payment_url, purchase_id]
+		[purchase_link?.data.payment_url, total_amount, purchase_id]
 	);
 
 	return {
