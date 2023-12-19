@@ -1,13 +1,13 @@
-import { EventsData, Reviews, SocialMedia } from "../common.model";
+import { EventsData, Reviews} from "../common.model";
 
 export type RentalsPackages = {
     name: string;
     price: number;
     description: string;
+    availability: boolean;
 };
 
 export type GetRentalsDetailData = {
-    social_media: SocialMedia[];
     packages: RentalsPackages[];
     reviews: Reviews[];
 } & EventsData;

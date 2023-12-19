@@ -4,20 +4,17 @@ import {
 	activateRentals,
 	addRentalsPackage,
 	addRentalsReview,
-	addRentalsSocialMedia,
 	approveRentals,
 	archiveRentals,
 	createRentals,
 	deleteRentals,
 	deleteRentalsPackage,
 	deleteRentalsReview,
-	deleteRentalsSocialMedia,
 	getAllRentals,
 	getRentalsById,
 	updateRentals,
 	updateRentalsPackage,
 	updateRentalsReview,
-	updateRentalsSocialMedia,
 } from "../../controllers";
 import { isAuthenticated, isAuthorized } from "../../middlewares";
 import { UserRole } from "../../models";
@@ -157,38 +154,6 @@ rentalsRoute.post(
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
 				details: "Failed to add rentals package",
-			});
-			if ((err as ApiError).code) {
-				apiError = err as ApiError;
-			}
-			throw apiError;
-		}
-	})
-);
-
-rentalsRoute.post(
-	"/:id/social",
-	isAuthenticated,
-	eventhingsResponse(async (req: Request) => {
-		try {
-			const body = await req.body;
-			const rt_id = req.params.id;
-			const data = await addRentalsSocialMedia({
-				data: body.socials,
-				rt_id,
-			});
-
-			return {
-				status: 200,
-				data: {
-					...data,
-				},
-				message: `Added social media to rentals ${rt_id} successfully`,
-			};
-		} catch (err) {
-			let apiError = new ApiError({
-				code: ErrorCodes.internalServerErrorCode,
-				details: "Failed to add rentals social media",
 			});
 			if ((err as ApiError).code) {
 				apiError = err as ApiError;
@@ -392,38 +357,6 @@ rentalsRoute.delete(
 );
 
 rentalsRoute.delete(
-	"/:id/social/:social_id",
-	isAuthenticated,
-	eventhingsResponse(async (req: Request, res: Response) => {
-		try {
-			const rt_id = req.params.id;
-			const social_media_id = req.params.social_id;
-
-			await deleteRentalsSocialMedia({
-				social_media_id,
-				rt_id,
-				res,
-			});
-
-			return {
-				status: 200,
-				data: null,
-				message: `Deleted rentals social media ${social_media_id} for rentals ${rt_id} successfully`,
-			};
-		} catch (err) {
-			let apiError = new ApiError({
-				code: ErrorCodes.internalServerErrorCode,
-				details: "Failed to add rentals package",
-			});
-			if ((err as ApiError).code) {
-				apiError = err as ApiError;
-			}
-			throw apiError;
-		}
-	})
-);
-
-rentalsRoute.delete(
 	"/:id/review/:review_id",
 	isAuthenticated,
 	eventhingsResponse(async (req: Request, res: Response) => {
@@ -502,40 +435,6 @@ rentalsRoute.patch(
 				status: 200,
 				data: data,
 				message: `Update rentals page ${package_id} for rentals ${rt_id} successfully`,
-			};
-		} catch (err) {
-			let apiError = new ApiError({
-				code: ErrorCodes.internalServerErrorCode,
-				details: "",
-			});
-			if ((err as ApiError).code) {
-				apiError = err as ApiError;
-			}
-			throw apiError;
-		}
-	})
-);
-
-rentalsRoute.patch(
-	"/:id/social/:social_id",
-	isAuthenticated,
-	eventhingsResponse(async (req: Request, res: Response) => {
-		try {
-			const rt_id = req.params.id;
-			const social_media_id = req.params.social_id;
-			const body = await req.body;
-
-			const data = await updateRentalsSocialMedia({
-				social_media_id,
-				rt_id,
-				data: body,
-				res,
-			});
-
-			return {
-				status: 200,
-				data: data,
-				message: `Update rentals social media ${social_media_id} for rentals ${rt_id} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({

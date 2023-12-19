@@ -93,9 +93,7 @@ CREATE TABLE SPONSORSHIP_REVIEW (
 );
 
 drop table if exists RENTALS CASCADE;
-drop table if exists RENTALS_DETAIL CASCADE;
-drop table if exists RENTALS_PACKAGE CASCADE;
-drop table if exists RENTALS_SOCIAL_MEDIA CASCADE;
+drop table if exists RENTALS_PACKAGE;
 drop table if exists RENTALS_REVIEW CASCADE;
 
 CREATE TABLE RENTALS (
@@ -104,81 +102,22 @@ CREATE TABLE RENTALS (
     approved_by VARCHAR(255),
     logo_url VARCHAR(255),
     name VARCHAR(255) NOT NULL,
-    description VARCHAR(255),
-    value VARCHAR(255),
+    description VARCHAR(25565),
+    value VARCHAR(25565),
     last_updated TIMESTAMP DEFAULT current_timestamp,
     updated_by VARCHAR(255),
-    created_at TIMESTAMP DEFAULT current_timestamp, 
-    is_approved BOOLEAN DEFAULT false,
-    is_active BOOLEAN DEFAULT true
-);
-
-CREATE TABLE RENTALS_SOCIAL_MEDIA (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    rt_id UUID NOT NULL,
-	CONSTRAINT fk_rt
-      FOREIGN KEY(rt_id) 
-	  REFERENCES rentals(id)
-	  ON DELETE cascade,
-    social_media VARCHAR(255) NOT NULL,
-    link VARCHAR(255) NOT NULL
-);
-
-CREATE TABLE RENTALS_PACKAGE (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    rt_id UUID NOT NULL,
-	CONSTRAINT fk_rt
-      FOREIGN KEY(rt_id) 
-	  REFERENCES rentals(id)
-	  ON DELETE cascade,
-    name VARCHAR(255) NOT NULL,
-    description VARCHAR(255),
-    price FLOAT NOT NULL
-);
-
-CREATE TABLE RENTALS_REVIEW (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    rt_id UUID NOT NULL,
-	CONSTRAINT fk_rt
-      FOREIGN KEY(rt_id) 
-	  REFERENCES rentals(id)
-	  ON DELETE cascade,
-    user_id VARCHAR(255) NOT NULL,
-    review VARCHAR(255),
-    rating INTEGER
-);
-
-drop table if exists RENTALS CASCADE;
-drop table if exists RENTALS_DETAIL CASCADE;
-drop table if exists RENTALS_PACKAGE CASCADE;
-drop table if exists RENTALS_SOCIAL_MEDIA CASCADE;
-drop table if exists RENTALS_REVIEW CASCADE;
-
-CREATE TABLE RENTALS (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    created_by VARCHAR(255),
-    approved_by VARCHAR(255),
-    logo_url VARCHAR(255),
-    name VARCHAR(255) NOT NULL,
-    description VARCHAR(255),
-    value VARCHAR(255),
-    last_updated TIMESTAMP DEFAULT current_timestamp,
-    updated_by VARCHAR(255),
-    created_at TIMESTAMP DEFAULT current_timestamp, 
+    created_at TIMESTAMP DEFAULT current_timestamp,
+    field VARCHAR(255) NOT NULL,
     is_approved BOOLEAN DEFAULT false,
     is_active BOOLEAN DEFAULT true,
-    is_archived BOOLEAN DEFAULT false
-);
-
-CREATE TABLE RENTALS_SOCIAL_MEDIA (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    rt_id UUID NOT NULL,
-	CONSTRAINT fk_rt
-      FOREIGN KEY(rt_id) 
-	  REFERENCES rentals(id)
-	  ON DELETE cascade,
-    social_media VARCHAR(255) NOT NULL,
-    link VARCHAR(255) NOT NULL
+    is_archived BOOLEAN DEFAULT false,
+    email VARCHAR(255), 
+    line VARCHAR(255),
+    twitter VARCHAR(255),
+    whatsapp VARCHAR(255),
+    instagram VARCHAR(255),
+    website VARCHAR(255),
+    location VARCHAR(255)
 );
 
 CREATE TABLE RENTALS_PACKAGE (
@@ -189,20 +128,9 @@ CREATE TABLE RENTALS_PACKAGE (
 	  REFERENCES rentals(id)
 	  ON DELETE cascade,
     name VARCHAR(255) NOT NULL,
-    description VARCHAR(255),
-    price FLOAT NOT NULL
-);
-
-CREATE TABLE RENTALS_IMAGE (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    package_id UUID NOT NULL,
-    CONSTRAINT fk_package
-      FOREIGN KEY(package_id) 
-      REFERENCES RENTALS_PACKAGE(id)
-      ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL,
-    description VARCHAR(255),
-    image_url VARCHAR(255) NOT NULL
+    price FLOAT NOT NULL,
+    description VARCHAR(25565),
+    availability BOOLEAN DEFAULT true
 );
 
 CREATE TABLE RENTALS_REVIEW (

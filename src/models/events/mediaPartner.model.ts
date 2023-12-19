@@ -1,4 +1,4 @@
-import { EventsData, Reviews, SocialMedia } from "../common.model";
+import { EventsData, Reviews} from "../common.model";
 
 export type MediaPartnerPackages = {
 	name: string;
@@ -7,7 +7,6 @@ export type MediaPartnerPackages = {
 };
 
 export type GetMediaPartnerDetailData = {
-	social_media: SocialMedia[];
 	packages: MediaPartnerPackages[];
 	reviews: Reviews[];
 } & EventsData;

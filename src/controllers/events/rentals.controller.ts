@@ -4,7 +4,6 @@ import {
 	EventsData,
 	EventsFilter,
 	RentalsPackages,
-	SocialMedia,
 	UpdateCreateRentalsBody,
 	UserRole,
 } from "../../models";
@@ -75,13 +74,16 @@ export const getAllRentals = async ({
 			});
 		}
 	}
-	const total = await dbQuery(`SELECT COUNT(*) FROM (${query})`, queryParams);
+
+	const total = await dbQuery(
+		`SELECT COUNT(*) FROM (${query})`, 
+		queryParams
+	);
 
 	query += ` LIMIT $${queryParams.length + 1} OFFSET $${
 		queryParams.length + 2
 	}`;
 	queryParams.push(limit, page * limit);
-
 	const res = await dbQuery(query, queryParams);
 	const total_page = Math.ceil(total.rows[0].count / limit);
 	return {
@@ -104,11 +106,6 @@ export const getRentalsById = async ({ id }: { id: string }) => {
 		[id]
 	);
 
-	const rentals_social_media = await dbQuery(
-		`SELECT * FROM rentals_social_media WHERE rt_id = $1 ORDER BY social_media`,
-		[id]
-	);
-
 	const rentals_review = await dbQuery(
 		`SELECT * FROM rentals_review WHERE rt_id = $1`,
 		[id]
@@ -117,7 +114,6 @@ export const getRentalsById = async ({ id }: { id: string }) => {
 	return {
 		...rentals.rows[0],
 		packages: [...rentals_package.rows],
-		social_media: [...rentals_social_media.rows],
 		reviews: [...rentals_review.rows],
 	};
 };
@@ -145,6 +141,12 @@ export const createRentals = async ({
 			logo_url,
 			data.description,
 			data.value,
+			data.email,
+			data.line,
+			data.twitter,
+			data.whatsapp,
+			data.instagram,
+			data.website,
 		]
 	);
 
@@ -155,14 +157,6 @@ export const createRentals = async ({
 			`INSERT INTO RENTALS_PACKAGE (rt_id, name, description, price)
 			VALUES ($1, $2, $3, $4)`,
 			[rt_id, val.name, val.description, val.price]
-		);
-	}
-
-	for (const val of data.social_media || []) {
-		await dbQuery(
-			`INSERT INTO RENTALS_SOCIAL_MEDIA (rt_id, social_media, link)
-			VALUES ($1, $2, $3)`,
-			[rt_id, val.social_media, val.link]
 		);
 	}
 
@@ -313,9 +307,9 @@ export const addRentalsPackage = async ({
 }) => {
 	for (const val of data) {
 		await dbQuery(
-			`INSERT INTO RENTALS_PACKAGE (rt_id, name, description, price)
-			VALUES ($1, $2, $3, $4)`,
-			[rt_id, val.name, val.description, val.price]
+			`INSERT INTO RENTALS_PACKAGE (rt_id, name, description, price, availability)
+			VALUES ($1, $2, $3, $4, $5)`,
+			[rt_id, val.name, val.description, val.price, val.availability]
 		);
 	}
 	
@@ -344,9 +338,9 @@ export const updateRentalsPackage = async ({
 	) {
 		await dbQuery(
 			`UPDATE RENTALS_PACKAGE
-			SET description = $1, name = $2, price = $3
-			WHERE id = $4`,
-			[data.description, data.name, data.price, package_id]
+			SET description = $1, name = $2, price = $3, availability = $4
+			WHERE id = $5`,
+			[data.description, data.name, data.price, data.availability, package_id]
 		);
 		return null;
 	}
@@ -385,88 +379,6 @@ export const deleteRentalsPackage = async ({
 		details: "Unauthorized",
 	});
 };
-
-export const addRentalsSocialMedia = async ({
-	rt_id,
-	data,
-}: {
-	rt_id: string;
-	data: SocialMedia[];
-}) => {
-	for (const val of data) {
-		await dbQuery(
-			`INSERT INTO RENTALS_SOCIAL_MEDIA (rt_id, social_media, link)
-			VALUES ($1, $2, $3)`,
-			[rt_id, val.social_media, val.link]
-		);
-	}
-
-	return data;
-};
-
-export const updateRentalsSocialMedia = async ({
-	social_media_id,
-	rt_id,
-	data,
-	res,
-}: {
-	social_media_id: string;
-	rt_id: string;
-	data: SocialMedia;
-	res: Response;
-}) => {
-	const creator_id = await dbQuery(
-		`SELECT created_by FROM RENTALS WHERE id = $1`,
-		[rt_id]
-	);
-
-	if (
-		creator_id.rows[0]?.created_by === res.locals.uid ||
-		res.locals.role === UserRole.ADMIN
-	) {
-		await dbQuery(
-			`UPDATE RENTALS_SOCIAL_MEDIA
-			SET social_media = $1, link = $2
-			WHERE id = $3`,
-			[data.social_media, data.link, social_media_id]
-		);
-		return null;
-	}
-	throw new ApiError({
-		code: ErrorCodes.unauthorizedErrorCode,
-		details: "Unauthorized",
-	});
-}
-
-export const deleteRentalsSocialMedia = async ({
-	social_media_id,
-	rt_id,
-	res,
-}: {
-	social_media_id: string;
-	rt_id: string;
-	res: Response;
-}) => {
-	const creator_id = await dbQuery(
-		`SELECT created_by FROM RENTALS WHERE id = $1`,
-		[rt_id]
-	);
-
-	if (
-		creator_id.rows[0]?.created_by === res.locals.uid ||
-		res.locals.role === UserRole.ADMIN
-	) {
-		await dbQuery(`DELETE FROM RENTALS_SOCIAL_MEDIA WHERE id = $1`, [
-			social_media_id,
-		]);
-		return null;
-	}
-
-	throw new ApiError({
-		code: ErrorCodes.unauthorizedErrorCode,
-		details: "Unauthorized",
-	});
-}
 
 export const addRentalsReview = async ({
 	rt_id,
