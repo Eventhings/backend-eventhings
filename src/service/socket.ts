@@ -11,6 +11,12 @@ export const socketConnection = (server: HTTPServer) => {
 	});
 
 	io.on("connection", (socket: any) => {
+		console.log(`User Conected :${socket.id}`);
+
+		socket.on("connect_error", (err: any) => {
+			console.log(`connect_error due to ${err.message}`);
+		});
+
 		socket.on(
 			"send_message",
 			({
