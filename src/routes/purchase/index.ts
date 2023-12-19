@@ -109,7 +109,7 @@ purchaseRoute.post(
 	eventhingsResponse(async (req: Request) => {
 		try {
 			const body = await req.body;
-
+			console.log(body);
 			const extractOrderId = (inputString: string) => {
 				const lastIndex = inputString.lastIndexOf("-");
 
@@ -118,9 +118,14 @@ purchaseRoute.post(
 				return extractedValue;
 			};
 
+			console.log(
+				extractOrderId(body.body.order_id),
+				body.channel_response_message
+			);
+
 			const userPurchase = await updatePurchaseStatus({
-				order_id: extractOrderId(body.body.order_id),
-				status: body.body.channel_response_message,
+				order_id: extractOrderId(body.order_id),
+				status: body.channel_response_message,
 			});
 			return {
 				status: 200,
