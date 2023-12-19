@@ -119,7 +119,7 @@ purchaseRoute.post(
 			};
 
 			console.log(
-				extractOrderId(body.body.order_id),
+				extractOrderId(body.order_id),
 				body.channel_response_message
 			);
 
@@ -127,6 +127,7 @@ purchaseRoute.post(
 				order_id: extractOrderId(body.order_id),
 				status: body.channel_response_message,
 			});
+
 			return {
 				status: 200,
 				data: {
@@ -137,6 +138,7 @@ purchaseRoute.post(
 				)} status sucessfully`,
 			};
 		} catch (err) {
+			console.log(err);
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
 				details: "",
