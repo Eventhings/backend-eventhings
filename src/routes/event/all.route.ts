@@ -1,5 +1,6 @@
 import express, { Request } from "express";
 import { getAllEventService } from "../../controllers";
+import { ServiceType } from "../../models";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../../utils";
 
 const allServiceRoute = express.Router();
@@ -20,6 +21,8 @@ allServiceRoute.get(
 					is_archived: (params.is_archived as string) ?? undefined,
 					created_by: (params.created_by as string) ?? undefined,
 					fees: (params.fees as "paid" | "free") ?? undefined,
+					service_type:
+						(params.service_type as ServiceType) ?? undefined,
 				},
 				sort_by: (params.sort_by as string) ?? undefined,
 				sort_method: (params.sort_method as string) ?? undefined,
