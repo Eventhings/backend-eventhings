@@ -28,7 +28,9 @@ export const uploadFile = async ({
 	isPublic: boolean;
 	folderName?: string;
 }) => {
-	const fileBuffer = Buffer.from(base64, "base64");
+	const base64Data = base64.replace(/^data:image\/\w+;base64,/, "");
+
+	const fileBuffer = Buffer.from(base64Data, "base64");
 
 	const uploadOptions = {
 		destination: folderName ? `${folderName}/${fileName}` : `${fileName}`,
@@ -57,6 +59,7 @@ export const uploadFile = async ({
 		const publicUrl = `https://storage.googleapis.com/${
 			env.GCLOUD_BUCKET_NAME
 		}/${folderName ? `${folderName}/${fileName}` : `${fileName}`}`;
+
 		console.log(
 			`File ${fileName}.jpg uploaded to folder ${folderName} in ${env.GCLOUD_BUCKET_NAME}.`
 		);

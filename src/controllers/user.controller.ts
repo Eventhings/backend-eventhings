@@ -7,7 +7,8 @@ import {
 import axios from "axios";
 import * as admin from "firebase-admin";
 import { env } from "process";
-import { UserRole } from "../models";
+import { UpdateUser, UserRole } from "../models";
+import { uploadFile } from "../service";
 
 export const registerUser = async ({
 	email,
@@ -80,6 +81,45 @@ export const refreshUserToken = async ({
 	}
 };
 
+export const updateUser = async ({
+	data,
+	uid,
+	role,
+}: {
+	data: UpdateUser;
+	uid: string;
+	role: string;
+}) => {
+	try {
+		await admin.auth().updateUser(uid, {
+			displayName: data.name,
+		});
+
+		await admin.auth().setCustomUserClaims(uid ?? "", {
+			dob: data.dob,
+			location: data.location,
+			phoneNumber: data.phoneNumber,
+			role: role,
+		});
+
+		const user_data = await admin.auth().getUser(uid);
+		return {
+			id: user_data.uid ?? null,
+			email: user_data.email ?? null,
+			display_name: user_data.displayName ?? null,
+			photo_url: user_data.photoURL ?? null,
+			phone_number: user_data.customClaims?.phoneNumber ?? null,
+			dob: user_data.customClaims?.dob ?? null,
+			location: user_data.customClaims?.location ?? null,
+			created_at: new Date(user_data.metadata.creationTime) ?? null,
+			last_sign_in: new Date(user_data.metadata.lastSignInTime) ?? null,
+			role: user_data.customClaims?.role ?? null,
+		};
+	} catch (err) {
+		throw err;
+	}
+};
+
 export const getUserMe = async ({ uid }: { uid: string }) => {
 	try {
 		const user_data = await admin.auth().getUser(uid);
@@ -88,7 +128,9 @@ export const getUserMe = async ({ uid }: { uid: string }) => {
 			email: user_data.email ?? null,
 			display_name: user_data.displayName ?? null,
 			photo_url: user_data.photoURL ?? null,
-			phone_number: user_data.phoneNumber ?? null,
+			phone_number: user_data.customClaims?.phoneNumber ?? null,
+			dob: user_data.customClaims?.dob ?? null,
+			location: user_data.customClaims?.location ?? null,
 			created_at: new Date(user_data.metadata.creationTime) ?? null,
 			last_sign_in: new Date(user_data.metadata.lastSignInTime) ?? null,
 			role: user_data.customClaims?.role ?? null,
@@ -106,4 +148,25 @@ export const getAllUser = async ({ total }: { total: number }) => {
 	} catch (err) {
 		return err;
 	}
+};
+
+export const updateUserProfileImage = async ({
+	profile_img,
+	uid,
+}: {
+	profile_img: string;
+	uid: string;
+}) => {
+	const profile_img_url = await uploadFile({
+		fileName: `${new Date().getTime().toString(36)}.jpg`,
+		base64: profile_img,
+		folderName: "user-profile-img",
+		isPublic: true,
+	});
+
+	await admin.auth().updateUser(uid, {
+		displayName: profile_img_url,
+	});
+
+	return profile_img_url;
 };

@@ -29,6 +29,9 @@ dependencies:
   firebase-admin:
     specifier: ^11.11.1
     version: 11.11.1
+  lodash:
+    specifier: ^4.17.21
+    version: 4.17.21
   pg:
     specifier: ^8.11.3
     version: 8.11.3
@@ -2602,7 +2605,6 @@ packages:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
     requiresBuild: true
     dev: false
-    optional: true
 
   /long@5.2.3:
     resolution: {integrity: sha512-lcHwpNoggQTObv5apGNCTdJrO69eHOZMi4BNC+rTLER8iHAqGrUVeLh/irVIM7zTw2bOXA8T6uNPeujwOLg/2Q==}

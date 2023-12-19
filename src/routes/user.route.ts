@@ -7,9 +7,11 @@ import {
 	loginUser,
 	refreshUserToken,
 	registerUser,
+	updateUser,
+	updateUserProfileImage,
 } from "../controllers";
 import { isAuthenticated, isAuthorized } from "../middlewares";
-import { UserRole, UserSchema } from "../models";
+import { UpdateUserSchema, UserRole, UserSchema } from "../models";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../utils";
 
 const userRoutes = express.Router();
@@ -215,6 +217,86 @@ userRoutes.post(
 				status: 200,
 				data: { access_token: new_token },
 				message: `refreshed token successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+			});
+
+			if (err instanceof ZodError) {
+				apiError = new ApiError({
+					code: ErrorCodes.badRequestErrorCode,
+					message: fromZodError(err).message,
+				});
+			}
+
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+
+			return apiError;
+		}
+	})
+);
+
+userRoutes.patch(
+	"/me/profile-img",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const body = req.body;
+			const { uid } = res.locals;
+
+			const image_url = await updateUserProfileImage({
+				profile_img: body.profile_img,
+				uid,
+			});
+
+			return {
+				status: 200,
+				data: {
+					image_url,
+				},
+				message: `Updated user ${uid} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+			});
+
+			if (err instanceof ZodError) {
+				apiError = new ApiError({
+					code: ErrorCodes.badRequestErrorCode,
+					message: fromZodError(err).message,
+				});
+			}
+
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+
+			return apiError;
+		}
+	})
+);
+
+userRoutes.patch(
+	"/me",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const body = req.body;
+			const { uid, role } = res.locals;
+			UpdateUserSchema.parse(body);
+			const user_data = await updateUser({
+				data: body,
+				uid,
+				role,
+			});
+			return {
+				status: 200,
+				data: { ...user_data },
+				message: `Updated user ${uid} successfully`,
 			};
 		} catch (err) {
 			let apiError = new ApiError({
