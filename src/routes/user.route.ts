@@ -84,6 +84,11 @@ userRoutes.post(
 		try {
 			const { email, password } = req.body;
 
+			UserSchema.parse({
+				email,
+				password,
+			});
+
 			if (!password || !email) {
 				throw new ApiError({
 					code: ErrorCodes.forbiddenErrorCode,
