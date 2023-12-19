@@ -24,7 +24,8 @@ CREATE TABLE MEDIA_PARTNER (
     twitter VARCHAR(255),
     whatsapp VARCHAR(255),
     instagram VARCHAR(255),
-    website VARCHAR(255)
+    website VARCHAR(255),
+    location VARCHAR(255)
 );
 
 CREATE TABLE MEDIA_PARTNER_PACKAGE (
@@ -74,7 +75,8 @@ CREATE TABLE SPONSORSHIP (
     twitter VARCHAR(255),
     whatsapp VARCHAR(255),
     instagram VARCHAR(255),
-    website VARCHAR(255)
+    website VARCHAR(255),
+    location VARCHAR(255)
 );
 
 
