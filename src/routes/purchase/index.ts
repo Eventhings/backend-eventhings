@@ -1,10 +1,73 @@
 import express, { Request, Response } from "express";
-import { createUserPurchase, updatePurchaseStatus } from "../../controllers";
+import {
+	createUserPurchase,
+	getAllServicePurchase,
+	getAllUserPurchase,
+	updatePurchaseStatus,
+} from "../../controllers";
 import { isAuthenticated } from "../../middlewares";
+import { PurchaseStatus } from "../../models";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../../utils";
 
 const purchaseRoute = express.Router();
 
+purchaseRoute.get(
+	"/user/:userId",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request) => {
+		try {
+			const params = req.params;
+			const res = await getAllUserPurchase({ userId: params.userId });
+
+			return {
+				status: 200,
+				data: res.rows ?? [],
+				message: `Get all user ${params.userId} purchases successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+
+			throw apiError;
+		}
+	})
+);
+
+purchaseRoute.get(
+	"/service/:serviceId",
+	isAuthenticated,
+	eventhingsResponse(async (req: Request) => {
+		try {
+			const params = req.params;
+			const res = await getAllServicePurchase({
+				serviceId: params.serviceId,
+			});
+
+			return {
+				status: 200,
+				data: res.rows ?? [],
+				message: `Get all service ${params.serviceId} purchases successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				details: "",
+			});
+
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+
+			throw apiError;
+		}
+	})
+);
 purchaseRoute.post(
 	"/",
 	isAuthenticated,
@@ -15,6 +78,7 @@ purchaseRoute.post(
 				data: {
 					...body,
 					user_id: res.locals.uid,
+					status: PurchaseStatus.PENDING,
 					email: res.locals.email,
 				},
 			});
@@ -45,7 +109,7 @@ purchaseRoute.post(
 	eventhingsResponse(async (req: Request) => {
 		try {
 			const body = await req.body;
-
+			console.log(body);
 			const extractOrderId = (inputString: string) => {
 				const lastIndex = inputString.lastIndexOf("-");
 
@@ -54,9 +118,14 @@ purchaseRoute.post(
 				return extractedValue;
 			};
 
+			console.log(
+				extractOrderId(body.body.order_id),
+				body.channel_response_message
+			);
+
 			const userPurchase = await updatePurchaseStatus({
-				order_id: extractOrderId(body.body.order_id),
-				status: body.body.channel_response_message,
+				order_id: extractOrderId(body.order_id),
+				status: body.channel_response_message,
 			});
 			return {
 				status: 200,

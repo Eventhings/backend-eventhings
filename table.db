@@ -122,7 +122,8 @@ CREATE TABLE USER_PURCHASES (
 	service_id UUID not null,
 	service_type VARCHAR(255) not null, 
     status VARCHAR(255),
-    payment_link VARCHAR(255)
+    payment_link VARCHAR(255),
+    total float
 );
 
 CREATE TABLE PURCHASE_ITEM (
