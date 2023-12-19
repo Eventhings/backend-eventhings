@@ -111,6 +111,13 @@ userRoutes.post(
 				apiError = err as ApiError;
 			}
 
+			if (err instanceof ZodError) {
+				apiError = new ApiError({
+					code: ErrorCodes.badRequestErrorCode,
+					message: fromZodError(err).message,
+				});
+			}
+
 			return apiError;
 		}
 	})
