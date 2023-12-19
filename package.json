@@ -22,7 +22,6 @@
     "express-body-parser-error-handler": "^1.0.7",
     "firebase": "^10.6.0",
     "firebase-admin": "^11.11.1",
-    "lodash": "^4.17.21",
     "pg": "^8.11.3",
     "socket.io": "^4.7.2",
     "zod": "^3.22.4",
