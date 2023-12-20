@@ -43,15 +43,25 @@ export const getAllRentals = async ({
 		.filter((val) => val !== "fees")
 		.map((val) => {
 			if (filter[val as keyof EventsFilter]) {
-				if (val == "name") {
-					query += ` AND rtl.${val} ILIKE '%' || $${
-						queryParams.length + 1
-					} || '%'`;
-				} else {
-					query += ` AND ${val} = $${queryParams.length + 1}`;
-				}
+				if (val === "field") {
+					filter["field"]?.map((field, index) => {
+						query += ` ${
+							index === 0 ? "AND" : "OR"
+						} rtl.${val} = $${queryParams.length + 1}`;
 
-				queryParams.push(filter[val as keyof EventsFilter]);
+						queryParams.push(field);
+					});
+				} else {
+					if (val == "name") {
+						query += ` AND rtl.${val} ILIKE '%' || $${
+							queryParams.length + 1
+						} || '%'`;
+					} else {
+						query += ` AND ${val} = $${queryParams.length + 1}`;
+					}
+
+					queryParams.push(filter[val as keyof EventsFilter]);
+				}
 			}
 		});
 

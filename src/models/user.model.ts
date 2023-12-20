@@ -17,7 +17,6 @@ const dobRegex = new RegExp(
 	"^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\\d{4}$"
 );
 export const UpdateUserSchema = z.object({
-	email: z.string().email({ message: "Invalid email format" }),
 	name: z.string(),
 	dob: z.string().regex(dobRegex, "Invalid Date (DD/MM/YYYY)"),
 	phoneNumber: z.string().regex(phoneRegex, "Invalid Number"),

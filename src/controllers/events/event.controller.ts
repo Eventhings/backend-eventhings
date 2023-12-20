@@ -15,7 +15,6 @@ export const getAllEventService = async ({
 	sort_by: string;
 	sort_method: string;
 }) => {
-
 	let query_mp = `
     SELECT
         'media_partner' AS service_type,
@@ -49,7 +48,7 @@ export const getAllEventService = async ({
         'rentals' AS service_type,
         rt.*,
         AVG(rtr.rating) as average_rating,
-        COALESCE(MIN(rtr.price), 0) AS min_price
+        COALESCE(MIN(rtp.price), 0) AS min_price
     FROM
         RENTALS rt
     LEFT JOIN
@@ -59,27 +58,46 @@ export const getAllEventService = async ({
     WHERE 1 = 1
 	`;
 
-	const queryParams = [];
+	const queryParams: any[] = [];
 
 	Object.keys(filter).map((val) => {
 		if (filter[val as keyof EventsFilter]) {
-			if (val == "name") {
-				query_mp += ` AND ${val} ILIKE '%' || $${
-					queryParams.length + 1
-				} || '%'`;
-				query_sp += ` AND ${val} ILIKE '%' || $${
-					queryParams.length + 1
-				} || '%'`;
-			} else if (val == "service_type") {
-				query_mp += ` AND 'media_partner' = $${queryParams.length + 1}`;
-				query_sp += ` AND 'sponsorship' = $${queryParams.length + 1}`;
-				query_rt += ` AND 'rentals' = $${queryParams.length + 1}`;
+			if (val === "field") {
+				filter["field"]?.map((field, index) => {
+					query_mp += ` ${index === 0 ? "AND" : "OR"} mp.${val} = $${
+						queryParams.length + 1
+					}`;
+					query_sp += ` ${index === 0 ? "AND" : "OR"} sp.${val} = $${
+						queryParams.length + 1
+					}`;
+					query_rt += ` ${index === 0 ? "AND" : "OR"} rt.${val} = $${
+						queryParams.length + 1
+					}`;
+					queryParams.push(field);
+				});
 			} else {
-				query_mp += ` AND ${val} = $${queryParams.length + 1}`;
-				query_sp += ` AND ${val} = $${queryParams.length + 1}`;
-				query_rt += ` AND ${val} = $${queryParams.length + 1}`;
+				if (val == "name") {
+					query_mp += ` AND ${val} ILIKE '%' || $${
+						queryParams.length + 1
+					} || '%'`;
+					query_sp += ` AND ${val} ILIKE '%' || $${
+						queryParams.length + 1
+					} || '%'`;
+				} else if (val == "service_type") {
+					query_mp += ` AND 'media_partner' = $${
+						queryParams.length + 1
+					}`;
+					query_sp += ` AND 'sponsorship' = $${
+						queryParams.length + 1
+					}`;
+					query_rt += ` AND 'rentals' = $${queryParams.length + 1}`;
+				} else {
+					query_mp += ` AND ${val} = $${queryParams.length + 1}`;
+					query_sp += ` AND ${val} = $${queryParams.length + 1}`;
+					query_rt += ` AND ${val} = $${queryParams.length + 1}`;
+				}
+				queryParams.push(filter[val as keyof EventsFilter]);
 			}
-			queryParams.push(filter[val as keyof EventsFilter]);
 		}
 	});
 
@@ -101,19 +119,20 @@ export const getAllEventService = async ({
 		}
 	}
 
-	query_all += ` LIMIT $${queryParams.length + 1} OFFSET $${
-		queryParams.length + 2
-	}`;
-
-	queryParams.push(limit, page * limit);
-	console.log(query_all);
-	const res = await dbQuery(query_all, queryParams);
 	const total = await dbQuery(
 		`SELECT COUNT(*) FROM (
 		${query_all}
     ) as services`,
 		queryParams
 	);
+
+	query_all += ` LIMIT $${queryParams.length + 1} OFFSET $${
+		queryParams.length + 2
+	}`;
+
+	queryParams.push(limit, page * limit);
+	const res = await dbQuery(query_all, queryParams);
+
 	const total_page = Math.ceil(total.rows[0].count / limit);
 	return {
 		total: parseInt(total.rows[0].count ?? 0),

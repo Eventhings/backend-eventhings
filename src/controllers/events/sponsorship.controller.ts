@@ -37,14 +37,23 @@ export const getAllSponsorship = async ({
 
 	Object.keys(filter).map((val) => {
 		if (filter[val as keyof EventsFilter]) {
-			if (val == "name") {
-				query += ` AND ${val} ILIKE '%' || $${
-					queryParams.length + 1
-				} || '%'`;
+			if (val === "field") {
+				filter["field"]?.map((field, index) => {
+					query += ` ${index === 0 ? "AND" : "OR"} s.${val} = $${
+						queryParams.length + 1
+					}`;
+					queryParams.push(field);
+				});
 			} else {
-				query += ` AND ${val} = $${queryParams.length + 1}`;
+				if (val == "name") {
+					query += ` AND ${val} ILIKE '%' || $${
+						queryParams.length + 1
+					} || '%'`;
+				} else {
+					query += ` AND ${val} = $${queryParams.length + 1}`;
+				}
+				queryParams.push(filter[val as keyof EventsFilter]);
 			}
-			queryParams.push(filter[val as keyof EventsFilter]);
 		}
 	});
 

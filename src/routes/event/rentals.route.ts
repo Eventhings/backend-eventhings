@@ -6,6 +6,7 @@ import {
 	addRentalsReview,
 	approveRentals,
 	archiveRentals,
+	availableRentalsPackage,
 	createRentals,
 	deleteRentals,
 	deleteRentalsPackage,
@@ -15,7 +16,6 @@ import {
 	updateRentals,
 	updateRentalsPackage,
 	updateRentalsReview,
-	availableRentalsPackage,
 } from "../../controllers";
 import { isAuthenticated, isAuthorized } from "../../middlewares";
 import { UserRole } from "../../models";
@@ -24,16 +24,20 @@ import { ApiError, ErrorCodes, eventhingsResponse } from "../../utils";
 const rentalsRoute = express.Router();
 
 rentalsRoute.get(
-	"/", 
+	"/",
 	eventhingsResponse(async (req: Request) => {
-	try {
-		const params = await req.query;
+		try {
+			const params = await req.query;
 			const res = await getAllRentals({
 				limit: parseInt((params.limit ?? 10) as string),
 				page: parseInt((params.page ?? 0) as string),
 				filter: {
 					name: (params.name as string) ?? undefined,
-					field: (params.field as string) ?? undefined,
+					field: params.field
+						? (JSON.parse(
+								(params.field as string).replace(/'/g, '"')
+						  ) as string[])
+						: undefined,
 					is_active: (params.is_active as string) ?? undefined,
 					is_approved: (params.is_approved as string) ?? undefined,
 					is_archived: (params.is_archived as string) ?? undefined,
@@ -43,15 +47,15 @@ rentalsRoute.get(
 				},
 				sort_by: (params.sort_by as string) ?? undefined,
 				sort_method: (params.sort_method as string) ?? undefined,
-	});
-	return {
-		status: 200,
-		data: {
-			...res,
-		},
-		message: "Get all rentals successfully",
-	};
-} catch (err) {
+			});
+			return {
+				status: 200,
+				data: {
+					...res,
+				},
+				message: "Get all rentals successfully",
+			};
+		} catch (err) {
 			let apiError = new ApiError({
 				code: ErrorCodes.internalServerErrorCode,
 				details: "",
@@ -494,7 +498,6 @@ rentalsRoute.post(
 			const rt_id = req.params.id;
 			const package_id = req.params.package_id;
 			const body = await req.body;
-			
 
 			const data = await availableRentalsPackage({
 				package_id,
@@ -519,7 +522,7 @@ rentalsRoute.post(
 				apiError = err as ApiError;
 			}
 			throw apiError;
-		} 
+		}
 	})
 );
 

@@ -45,7 +45,7 @@ export type EventsData = {
 
 export type EventsFilter = {
 	name: string;
-	field: string;
+	field: string[];
 	is_active: string;
 	is_approved: string;
 	is_archived: string;
