@@ -307,9 +307,9 @@ export const addRentalsPackage = async ({
 }) => {
 	for (const val of data) {
 		await dbQuery(
-			`INSERT INTO RENTALS_PACKAGE (rt_id, name, description, price, availability)
-			VALUES ($1, $2, $3, $4, $5)`,
-			[rt_id, val.name, val.description, val.price, val.availability]
+			`INSERT INTO RENTALS_PACKAGE (rt_id, name, description, price)
+			VALUES ($1, $2, $3, $4)`,
+			[rt_id, val.name, val.description, val.price]
 		);
 	}
 	
@@ -338,9 +338,9 @@ export const updateRentalsPackage = async ({
 	) {
 		await dbQuery(
 			`UPDATE RENTALS_PACKAGE
-			SET description = $1, name = $2, price = $3, availability = $4
-			WHERE id = $5`,
-			[data.description, data.name, data.price, data.availability, package_id]
+			SET description = $1, name = $2, price = $3
+			WHERE id = $4`,
+			[data.description, data.name, data.price, package_id]
 		);
 		return null;
 	}
@@ -379,6 +379,40 @@ export const deleteRentalsPackage = async ({
 		details: "Unauthorized",
 	});
 };
+
+export const availabilityRentalsPackage = async ({
+	rt_id,
+	availability,
+	res,
+}: {
+	rt_id: string;
+	availability: boolean;
+	res: Response;
+}) => {
+	const creator_id = await dbQuery(
+		`SELECT created_by FROM RENTALS WHERE id = $1`,
+		[rt_id]
+	);
+
+	if (
+		creator_id.rows[0]?.created_by === res.locals.uid ||
+		res.locals.role === UserRole.ADMIN
+	) {
+		await dbQuery(
+			`UPDATE RENTALS_PACKAGE
+			SET availability = $1
+			WHERE id = $2`,
+			[availability, rt_id]
+		);
+
+		return null;
+	}
+
+	throw new ApiError({
+		code: ErrorCodes.unauthorizedErrorCode,
+		details: "Unauthorized",
+	});
+}
 
 export const addRentalsReview = async ({
 	rt_id,

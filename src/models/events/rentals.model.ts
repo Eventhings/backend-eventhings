@@ -4,7 +4,6 @@ export type RentalsPackages = {
     name: string;
     price: number;
     description: string;
-    availability: boolean;
 };
 
 export type GetRentalsDetailData = {
@@ -21,6 +20,7 @@ export type UpdateCreateRentalsBody = Exclude<
         "last_updated",
         "created_at",
         "is_approved",
+        "availability",
         "rating"
     ]
 > & { logo: string };

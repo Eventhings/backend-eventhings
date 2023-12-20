@@ -38,6 +38,7 @@ rentalsRoute.get(
 					is_archived: (params.is_archived as string) ?? undefined,
 					created_by: (params.created_by as string) ?? undefined,
 					fees: (params.fees as "paid" | "free") ?? undefined,
+					location: (params.location as string) ?? undefined,
 				},
 				sort_by: (params.sort_by as string) ?? undefined,
 				sort_method: (params.sort_method as string) ?? undefined,
