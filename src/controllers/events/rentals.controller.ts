@@ -43,7 +43,7 @@ export const getAllRentals = async ({
 		.map((val) => {
 			if (filter[val as keyof EventsFilter]) {
 				if (val == "name") {
-					query += ` AND ${val} ILIKE '%' || $${
+					query += ` AND rtl.${val} ILIKE '%' || $${
 						queryParams.length + 1
 					} || '%'`;
 				} else {
@@ -133,7 +133,7 @@ export const createRentals = async ({
 	});
 
 	const rentals_results = await dbQuery(
-		`INSERT INTO RENTALS (name, field, created_by, logo_url, description, value, email, line, twitter, whatsapp, instagram, website) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id`,
+		`INSERT INTO RENTALS (name, field, created_by, logo_url, description, value, email, line, twitter, whatsapp, instagram, website) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id;`,
 		[
 			data.name,
 			data.field,
@@ -305,7 +305,7 @@ export const addRentalsPackage = async ({
 	rt_id: string;
 	data: RentalsPackages[];
 }) => {
-	for (const val of data) {
+	for (const val of data || []) {
 		await dbQuery(
 			`INSERT INTO RENTALS_PACKAGE (rt_id, name, description, price)
 			VALUES ($1, $2, $3, $4)`,
@@ -380,17 +380,22 @@ export const deleteRentalsPackage = async ({
 	});
 };
 
-export const availabilityRentalsPackage = async ({
+export const availableRentalsPackage = async ({
 	rt_id,
+	package_id,
 	availability,
 	res,
 }: {
 	rt_id: string;
+	package_id: string;
 	availability: boolean;
 	res: Response;
 }) => {
 	const creator_id = await dbQuery(
-		`SELECT created_by FROM RENTALS WHERE id = $1`,
+		`SELECT r.created_by
+		FROM RENTALS r
+		JOIN RENTALS_PACKAGE rp ON r.id = rp.rentals_id
+		WHERE rp.id = $1`,
 		[rt_id]
 	);
 
@@ -402,7 +407,7 @@ export const availabilityRentalsPackage = async ({
 			`UPDATE RENTALS_PACKAGE
 			SET availability = $1
 			WHERE id = $2`,
-			[availability, rt_id]
+			[availability, package_id]
 		);
 
 		return null;
@@ -412,7 +417,7 @@ export const availabilityRentalsPackage = async ({
 		code: ErrorCodes.unauthorizedErrorCode,
 		details: "Unauthorized",
 	});
-}
+};
 
 export const addRentalsReview = async ({
 	rt_id,

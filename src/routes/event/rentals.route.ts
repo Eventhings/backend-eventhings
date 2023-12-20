@@ -15,6 +15,7 @@ import {
 	updateRentals,
 	updateRentalsPackage,
 	updateRentalsReview,
+	availableRentalsPackage,
 } from "../../controllers";
 import { isAuthenticated, isAuthorized } from "../../middlewares";
 import { UserRole } from "../../models";
@@ -481,6 +482,44 @@ rentalsRoute.patch(
 			}
 			throw apiError;
 		}
+	})
+);
+
+rentalsRoute.post(
+	"/:id/package/:package_id/available",
+	isAuthenticated,
+	isAuthorized({ allowedRoles: [UserRole.ADMIN] }),
+	eventhingsResponse(async (req: Request, res: Response) => {
+		try {
+			const rt_id = req.params.id;
+			const package_id = req.params.package_id;
+			const body = await req.body;
+			
+
+			const data = await availableRentalsPackage({
+				package_id,
+				rt_id,
+				availability: body.availability ?? true,
+				res,
+			});
+
+			return {
+				status: 200,
+				data: data,
+				message: `${
+					body.availability ?? true ? "Activated" : "Deactivated"
+				} rentals package ${rt_id} successfully`,
+			};
+		} catch (err) {
+			let apiError = new ApiError({
+				code: ErrorCodes.internalServerErrorCode,
+				message: "Failed to update availability of rentals package",
+			});
+			if ((err as ApiError).code) {
+				apiError = err as ApiError;
+			}
+			throw apiError;
+		} 
 	})
 );
 
