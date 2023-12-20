@@ -75,10 +75,18 @@ pnpm run dev
 Postman Collection: https://documenter.getpostman.com/view/18445120/2s9Ykkgiqj
 
 ## ERD Design
-![Eventh](https://github.com/Eventhings/backend-eventhings/assets/28957554/2a2d6644-0e22-40b5-b58c-c56df295b068)
+<p align="center">
+   <img width="850" src="https://github.com/Eventhings/backend-eventhings/assets/28957554/2a2d6644-0e22-40b5-b58c-c56df295b068">
+</p>
 
 ## Microservice Diagram
-<img width="963" alt="image" src="https://github.com/Eventhings/backend-eventhings/assets/28957554/de1ce91d-8b2a-4f42-9470-52e2d376b9d6">
+Microservice Diagram Flow of the Backend Service
+<p align="center">
+   <img width="850" alt="image" src="https://github.com/Eventhings/backend-eventhings/assets/28957554/de1ce91d-8b2a-4f42-9470-52e2d376b9d6">
+</p>
 
 ## Architecture Design on GCP
-(Coming Soon)
+Google Cloud Platform Architecture Design
+<p align="center">
+   <img width="850" src="https://github.com/Eventhings/backend-eventhings/assets/28957554/17139a91-34f4-4dbf-89a6-3dd698c8a338">
+</p>
