@@ -128,7 +128,7 @@ export const createMediaPartner = async ({
 	const logo_url = await uploadFile({
 		fileName: `${new Date().getTime().toString(36)}.jpg`,
 		base64: data.logo,
-		folderName: "event-image",
+		folderName: "media-partner-image",
 		isPublic: true,
 	});
 
