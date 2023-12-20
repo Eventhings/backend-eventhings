@@ -84,6 +84,11 @@ userRoutes.post(
 		try {
 			const { email, password } = req.body;
 
+			UserSchema.parse({
+				email,
+				password,
+			});
+
 			if (!password || !email) {
 				throw new ApiError({
 					code: ErrorCodes.forbiddenErrorCode,
@@ -104,6 +109,13 @@ userRoutes.post(
 
 			if ((err as ApiError).code) {
 				apiError = err as ApiError;
+			}
+
+			if (err instanceof ZodError) {
+				apiError = new ApiError({
+					code: ErrorCodes.badRequestErrorCode,
+					message: fromZodError(err).message,
+				});
 			}
 
 			return apiError;

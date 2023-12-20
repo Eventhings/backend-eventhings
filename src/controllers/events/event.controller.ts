@@ -70,9 +70,10 @@ export const getAllEventService = async ({
 				query_sp += ` AND ${val} ILIKE '%' || $${
 					queryParams.length + 1
 				} || '%'`;
-				query_rt += ` AND ${val} ILIKE '%' || $${
-					queryParams.length + 1
-				} || '%'`;
+			} else if (val == "service_type") {
+				query_mp += ` AND 'media_partner' = $${queryParams.length + 1}`;
+				query_sp += ` AND 'sponsorship' = $${queryParams.length + 1}`;
+				query_rt += ` AND 'rentals' = $${queryParams.length + 1}`;
 			} else {
 				query_mp += ` AND ${val} = $${queryParams.length + 1}`;
 				query_sp += ` AND ${val} = $${queryParams.length + 1}`;
@@ -105,7 +106,7 @@ export const getAllEventService = async ({
 	}`;
 
 	queryParams.push(limit, page * limit);
-
+	console.log(query_all);
 	const res = await dbQuery(query_all, queryParams);
 	const total = await dbQuery(
 		`SELECT COUNT(*) FROM (

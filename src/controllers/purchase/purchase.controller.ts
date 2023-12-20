@@ -2,6 +2,7 @@ import axios from "axios";
 import { dbQuery } from "../../db";
 import { ServiceType } from "../../models";
 import { UpdateCreateUserPurchase } from "../../models/purchase/purchase.model";
+import { ApiError, ErrorCodes } from "../../utils";
 
 export const getAllUserPurchase = async ({ userId }: { userId: string }) => {
 	const user_purchases = await dbQuery(
@@ -74,7 +75,6 @@ export const createUserPurchase = async ({
     `,
 		[data.service_id, data.user_id, data.service_type, data.status]
 	);
-
 	const purchase_id = user_purchase_result.rows[0]?.id;
 
 	for (const val of data.packages || []) {
@@ -109,7 +109,14 @@ export const createUserPurchase = async ({
 
 	packages_detail = data.packages.map((val) => {
 		let temp = packages.find((pkg) => pkg.id === val.package_id);
-		total_amount += (parseInt(val.quantity) * temp.price) as number;
+
+		if (!temp) {
+			throw new ApiError({
+				code: ErrorCodes.notFoundErrorCode,
+				message: `Package is not available for ${data.service_id}`,
+			});
+		}
+		total_amount += (parseInt(val.quantity) * temp.price ?? 0) as number;
 		return {
 			id: temp.package_id,
 			name: temp.name,
@@ -174,7 +181,7 @@ export const createUserPurchase = async ({
 			}
 		);
 	} catch (err) {
-		console.log((err as any).response.data);
+		console.error(err);
 	}
 
 	await dbQuery(

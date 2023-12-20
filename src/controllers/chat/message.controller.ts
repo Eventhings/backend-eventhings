@@ -11,7 +11,7 @@ export const getAllChatRoomMessages = async ({
 	if (!room_id && !user_id) {
 		throw new ApiError({
 			code: ErrorCodes.badRequestErrorCode,
-			details: "Please make sure all body needed is available",
+			details: "Please params needed is available",
 		});
 	}
 

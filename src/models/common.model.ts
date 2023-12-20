@@ -51,5 +51,6 @@ export type EventsFilter = {
 	is_archived: string;
 	created_by: string;
 	fees: "paid" | "free";
+	service_type: ServiceType;
 	location: string;
 };
