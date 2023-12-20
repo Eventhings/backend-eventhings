@@ -8,6 +8,15 @@ In the ever-evolving landscape of event planning, Eventh!ngs emerges as a revolu
 
 This repository is for the Backend services used for Eventh!ngs Product Capstone Project
 
+## Team Members
+- M296BSX0246 - Arsya Amalia Ristias - Universitas Pembangunan Nasional Veteran Jawa Timur - Machine Learning - [Active]
+- M002BSY0363 - Kevin Sean Hans Lopulalan - Institut Teknologi Bandung - Machine Learning - [Active]
+- M002BSY0484 - Moch Nabil Farras Dhiya - Institut Teknologi Bandung - Machine Learning - [Active]
+- C002BSY3374 - Felix Fernando - Institut Teknologi Bandung - Cloud Computing - [Active]
+- C296BSY3382 - Jose Bagus Ramadhan - Universitas Pembangunan Nasional Veteran Jawa Timur - Cloud Computing - [Active]
+- A120BSY1987 - Abdul Hafiz Ramadan - Institut Teknologi Telkom Purwokerto - Mobile Development - [Active]
+- A190BSY2058 - Ilham Maulana - Universitas Bhayangkara Jakarta Raya - Mobile Development - [Active]
+
 ## Stack 
 - Typescript
 - Node v18.17.0
