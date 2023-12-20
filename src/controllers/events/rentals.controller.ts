@@ -31,9 +31,9 @@ export const getAllRentals = async ({
 		FROM
 			RENTALS rtl
 		LEFT JOIN
-			RENTALS_REVIEW r ON m.id = r.rt_id
+			RENTALS_REVIEW r ON rtl.id = r.rt_id
 		LEFT JOIN
-			RENTALS_PACKAGE p ON m.id = r.rt_id
+			RENTALS_PACKAGE p ON rtl.id = r.rt_id
 		WHERE 1 = 1
 	`;
 	const queryParams = [];
@@ -76,7 +76,7 @@ export const getAllRentals = async ({
 	}
 
 	const total = await dbQuery(
-		`SELECT COUNT(*) FROM (${query})`, 
+		`SELECT COUNT(*) FROM (${query}) as rentals`, 
 		queryParams
 	);
 
@@ -133,7 +133,7 @@ export const createRentals = async ({
 	});
 
 	const rentals_results = await dbQuery(
-		`INSERT INTO RENTALS (name, field, created_by, logo_url, description, value) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;`,
+		`INSERT INTO RENTALS (name, field, created_by, logo_url, description, value, email, line, twitter, whatsapp, instagram, website) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id`,
 		[
 			data.name,
 			data.field,
