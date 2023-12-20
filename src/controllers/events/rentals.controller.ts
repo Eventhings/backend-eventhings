@@ -107,7 +107,21 @@ export const getAllRentals = async ({
 };
 
 export const getRentalsById = async ({ id }: { id: string }) => {
-	const rentals = await dbQuery(`SELECT * FROM rentals WHERE id = $1`, [id]);
+	const rentals = await dbQuery(
+		`SELECT
+			rtl.*,
+			AVG(r.rating) AS average_rating,
+			COALESCE(MIN(p.price), 0) AS min_price
+		FROM
+			RENTALS rtl
+		LEFT JOIN
+			RENTALS_REVIEW r ON rtl.id = r.rt_id
+		LEFT JOIN
+			RENTALS_PACKAGE p ON rtl.id = r.rt_id
+		WHERE rtl.id = $1
+		GROUP BY rtl.id`,
+		[id]
+	);
 
 	const rentals_package = await dbQuery(
 		`SELECT * FROM rentals_package WHERE rt_id = $1 ORDER BY name`,

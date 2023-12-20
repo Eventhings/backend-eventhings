@@ -93,7 +93,15 @@ export const getAllSponsorship = async ({
 
 export const getSponsorshipById = async ({ id }: { id: string }) => {
 	const sponsorship = await dbQuery(
-		`SELECT * FROM sponsorship WHERE id = $1`,
+		`SELECT
+			s.*,
+			AVG(r.rating) AS average_rating
+		FROM
+			sponsorship s
+		LEFT JOIN
+			sponsorship_review r ON s.id = r.sp_id
+		WHERE s.id = $1
+		GROUP BY s.id`,
 		[id]
 	);
 

@@ -107,7 +107,18 @@ export const getAllMediaPartner = async ({
 
 export const getMediaPartnerById = async ({ id }: { id: string }) => {
 	const media_partner = await dbQuery(
-		`SELECT * FROM media_partner WHERE id = $1`,
+		`SELECT
+			m.*,
+			AVG(r.rating) AS average_rating,
+			COALESCE(MIN(p.price), 0) AS min_price
+		FROM
+			MEDIA_PARTNER m
+		LEFT JOIN
+			MEDIA_PARTNER_REVIEW r ON m.id = r.mp_id
+		LEFT JOIN
+			MEDIA_PARTNER_PACKAGE p ON m.id = r.mp_id
+		WHERE m.id = $1
+		GROUP BY m.id`,
 		[id]
 	);
 
