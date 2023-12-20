@@ -1,3 +1,4 @@
+import * as admin from "firebase-admin";
 import { dbQuery } from "../../db";
 import { ApiError, ErrorCodes } from "../../utils";
 
@@ -23,15 +24,43 @@ export const getAllChatRoomMessages = async ({
 		room.rows[0].business_id === user_id ||
 		room.rows[0].customer_id === user_id
 	) {
+		const user_list = (
+			await admin
+				.auth()
+				.getUsers([
+					{ uid: room.rows[0].business_id },
+					{ uid: room.rows[0].customer_id },
+				])
+		).users;
+
 		const messages = await dbQuery(
 			`SELECT id, created_at, user_id, message FROM CHAT_MESSAGE WHERE room_id = $1`,
 			[room_id]
 		);
 
 		return {
-			business_id: room.rows[0].business_id,
-			customer_id: room.rows[0].customer_id,
-			messages: messages.rows,
+			business_detail: {
+				id: room.rows[0].business_id,
+				email: user_list[0].email,
+				username: user_list[0].displayName ?? null,
+			},
+			customer_detail: {
+				id: room.rows[0].customer_id,
+				email: user_list[1].email,
+				username: user_list[1].displayName ?? null,
+			},
+			messages: [
+				...messages.rows.map((message: any) => {
+					const user = user_list.find(
+						(user) => message.user_id === user.uid
+					);
+					return {
+						...message,
+						username: user?.displayName,
+						email: user?.email,
+					};
+				}),
+			],
 		};
 	}
 
