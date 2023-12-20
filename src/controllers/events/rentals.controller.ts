@@ -157,6 +157,7 @@ export const getRentalsById = async ({ id }: { id: string }) => {
 							partiallyObscureEmail(
 								user_detail?.email as string
 							) ?? null,
+						profile_img: user_detail?.photoURL ?? null,
 					},
 				};
 			}),
