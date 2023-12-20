@@ -1,4 +1,9 @@
 # Eventh!ngs Backend Repository
+
+<p align="center">
+   <img src="https://github.com/Eventhings/backend-eventhings/assets/28957554/583ae431-25da-4796-8689-7fb1aba2a11d" width="500px"/>
+</p>
+
 In the ever-evolving landscape of event planning, Eventh!ngs emerges as a revolutionary solution, meticulously designed to simplify the intricate process of organizing events. The project’s Executive Summary encapsulates its core essence — a potent fusion of advanced technologies and user-centric design to redefine the event organization paradigm.
 
 This repository is for the Backend services used for Eventh!ngs Product Capstone Project
