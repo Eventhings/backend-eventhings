@@ -25,7 +25,7 @@ This repository is for the Backend services used for Eventh!ngs Product Capstone
 - Firebase (Authentication)
 - Axios (API Fetching)
 - Midtrans (Payment Gateway)
-- Socket.io (Long Pooling Framework)
+- Socket.io (Long Pooling Connection)
 
 ## Features
 - [x] Firebase Authentication and Authorization
