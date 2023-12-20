@@ -37,21 +37,30 @@ export const getAllMediaPartner = async ({
 			MEDIA_PARTNER_PACKAGE p ON m.id = r.mp_id
 		WHERE 1 = 1
 	`;
+	console.log(query);
 	const queryParams = [];
-
 	Object.keys(filter)
 		.filter((val) => val !== "fees")
 		.map((val) => {
 			if (filter[val as keyof EventsFilter]) {
-				if (val == "name") {
-					query += ` AND m.${val} ILIKE '%' || $${
-						queryParams.length + 1
-					} || '%'`;
+				if (val === "field") {
+					filter["field"]?.map((field, index) => {
+						query += ` ${index === 0 ? "AND" : "OR"} m.${val} = $${
+							queryParams.length + 1
+						}`;
+						queryParams.push(field);
+					});
 				} else {
-					query += ` AND ${val} = $${queryParams.length + 1}`;
-				}
+					if (val == "name") {
+						query += ` AND m.${val} ILIKE '%' || $${
+							queryParams.length + 1
+						} || '%'`;
+					} else {
+						query += ` AND ${val} = $${queryParams.length + 1}`;
+					}
 
-				queryParams.push(filter[val as keyof EventsFilter]);
+					queryParams.push(filter[val as keyof EventsFilter]);
+				}
 			}
 		});
 
@@ -84,6 +93,7 @@ export const getAllMediaPartner = async ({
 	query += ` LIMIT $${queryParams.length + 1} OFFSET $${
 		queryParams.length + 2
 	}`;
+
 	queryParams.push(limit, page * limit);
 	const res = await dbQuery(query, queryParams);
 	const total_page = Math.ceil(total.rows[0].count / limit);
