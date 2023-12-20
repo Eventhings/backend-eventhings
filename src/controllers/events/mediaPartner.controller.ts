@@ -37,7 +37,6 @@ export const getAllMediaPartner = async ({
 			MEDIA_PARTNER_PACKAGE p ON m.id = r.mp_id
 		WHERE 1 = 1
 	`;
-	console.log(query);
 	const queryParams = [];
 	Object.keys(filter)
 		.filter((val) => val !== "fees")

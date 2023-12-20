@@ -78,7 +78,6 @@ export const getAllSponsorship = async ({
 	query += ` LIMIT $${queryParams.length + 1} OFFSET $${
 		queryParams.length + 2
 	}`;
-	console.log(query);
 	queryParams.push(limit, page * limit);
 
 	const res = await dbQuery(query, queryParams);
