@@ -9,7 +9,7 @@ import {
 	UserRole,
 } from "../../models";
 import { uploadFile } from "../../service";
-import { ApiError, ErrorCodes } from "../../utils";
+import { ApiError, ErrorCodes, partiallyObscureEmail } from "../../utils";
 
 export const getAllRentals = async ({
 	limit,
@@ -129,7 +129,10 @@ export const getRentalsById = async ({ id }: { id: string }) => {
 					user_detail: {
 						id: review.user_id,
 						name: user_detail?.displayName ?? null,
-						email: user_detail?.email ?? null,
+						email:
+							partiallyObscureEmail(
+								user_detail?.email as string
+							) ?? null,
 					},
 				};
 			}),
