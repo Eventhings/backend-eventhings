@@ -1,4 +1,5 @@
 import { Response } from "express";
+import * as admin from "firebase-admin";
 import { dbQuery } from "../../db";
 import {
 	EventsData,
@@ -8,7 +9,7 @@ import {
 	UserRole,
 } from "../../models";
 import { uploadFile } from "../../service";
-import { ApiError, ErrorCodes } from "../../utils";
+import { ApiError, ErrorCodes, partiallyObscureEmail } from "../../utils";
 
 export const getAllMediaPartner = async ({
 	limit,
@@ -111,10 +112,34 @@ export const getMediaPartnerById = async ({ id }: { id: string }) => {
 		[id]
 	);
 
+	const user_id_list = media_partner_review.rows.map((val: any) => {
+		return {
+			uid: val.user_id,
+		};
+	});
+	const user_list = (await admin.auth().getUsers(user_id_list)).users;
+
 	return {
 		...media_partner.rows[0],
 		packages: [...media_partner_package.rows],
-		reviews: [...media_partner_review.rows],
+		reviews: [
+			...media_partner_review.rows.map((review: any) => {
+				const user_detail = user_list.find(
+					(val) => val.uid === review.user_id
+				);
+				return {
+					...review,
+					user_detail: {
+						id: review.user_id,
+						name: user_detail?.displayName ?? null,
+						email:
+							partiallyObscureEmail(
+								user_detail?.email as string
+							) ?? null,
+					},
+				};
+			}),
+		],
 	};
 };
 

@@ -1,4 +1,5 @@
 import { Response } from "express";
+import * as admin from "firebase-admin";
 import { dbQuery } from "../../db";
 import {
 	EventsData,
@@ -8,7 +9,7 @@ import {
 	UserRole,
 } from "../../models";
 import { uploadFile } from "../../service";
-import { ApiError, ErrorCodes } from "../../utils";
+import { ApiError, ErrorCodes, partiallyObscureEmail } from "../../utils";
 
 export const getAllRentals = async ({
 	limit,
@@ -76,7 +77,7 @@ export const getAllRentals = async ({
 	}
 
 	const total = await dbQuery(
-		`SELECT COUNT(*) FROM (${query}) as rentals`, 
+		`SELECT COUNT(*) FROM (${query}) as rentals`,
 		queryParams
 	);
 
@@ -96,10 +97,7 @@ export const getAllRentals = async ({
 };
 
 export const getRentalsById = async ({ id }: { id: string }) => {
-	const rentals = await dbQuery(
-		`SELECT * FROM rentals WHERE id = $1`,
-		[id]
-	);
+	const rentals = await dbQuery(`SELECT * FROM rentals WHERE id = $1`, [id]);
 
 	const rentals_package = await dbQuery(
 		`SELECT * FROM rentals_package WHERE rt_id = $1 ORDER BY name`,
@@ -111,10 +109,34 @@ export const getRentalsById = async ({ id }: { id: string }) => {
 		[id]
 	);
 
+	const user_id_list = rentals_review.rows.map((val: any) => {
+		return {
+			uid: val.user_id,
+		};
+	});
+	const user_list = (await admin.auth().getUsers(user_id_list)).users;
+
 	return {
 		...rentals.rows[0],
 		packages: [...rentals_package.rows],
-		reviews: [...rentals_review.rows],
+		reviews: [
+			...rentals_review.rows.map((review: any) => {
+				const user_detail = user_list.find(
+					(val) => val.uid === review.user_id
+				);
+				return {
+					...review,
+					user_detail: {
+						id: review.user_id,
+						name: user_detail?.displayName ?? null,
+						email:
+							partiallyObscureEmail(
+								user_detail?.email as string
+							) ?? null,
+					},
+				};
+			}),
+		],
 	};
 };
 
@@ -312,7 +334,7 @@ export const addRentalsPackage = async ({
 			[rt_id, val.name, val.description, val.price]
 		);
 	}
-	
+
 	return data;
 };
 
@@ -487,9 +509,7 @@ export const deleteRentalsReview = async ({
 		reviewer_id.rows[0]?.reviewer_id === res.locals.uid ||
 		res.locals.role === UserRole.ADMIN
 	) {
-		await dbQuery(`DELETE FROM RENTALS_REVIEW WHERE id = $1`, [
-			review_id
-		]);
+		await dbQuery(`DELETE FROM RENTALS_REVIEW WHERE id = $1`, [review_id]);
 		return null;
 	}
 

@@ -13,3 +13,17 @@ export function base64MimeType(encoded: any): string {
 
 	return result ?? "";
 }
+
+export const partiallyObscureEmail = (email: string) => {
+	const atIndex = email.indexOf("@");
+	if (atIndex > 0) {
+		const beforeAt = email.substring(0, atIndex);
+		const obscuredPart =
+			beforeAt[0] +
+			"*".repeat(beforeAt.length - 2) +
+			beforeAt[beforeAt.length - 1];
+		const partialEmail = obscuredPart + email.substring(atIndex);
+		return partialEmail;
+	}
+	return email;
+};
