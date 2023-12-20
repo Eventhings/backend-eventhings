@@ -92,6 +92,59 @@ CREATE TABLE SPONSORSHIP_REVIEW (
     rating INTEGER
 );
 
+drop table if exists RENTALS CASCADE;
+drop table if exists RENTALS_PACKAGE;
+drop table if exists RENTALS_REVIEW CASCADE;
+
+CREATE TABLE RENTALS (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    created_by VARCHAR(255),
+    approved_by VARCHAR(255),
+    logo_url VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(25565),
+    value VARCHAR(25565),
+    last_updated TIMESTAMP DEFAULT current_timestamp,
+    updated_by VARCHAR(255),
+    created_at TIMESTAMP DEFAULT current_timestamp,
+    field VARCHAR(255) NOT NULL,
+    is_approved BOOLEAN DEFAULT false,
+    is_active BOOLEAN DEFAULT true,
+    is_archived BOOLEAN DEFAULT false,
+    email VARCHAR(255), 
+    line VARCHAR(255),
+    twitter VARCHAR(255),
+    whatsapp VARCHAR(255),
+    instagram VARCHAR(255),
+    website VARCHAR(255),
+    location VARCHAR(255)
+);
+
+CREATE TABLE RENTALS_PACKAGE (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    rt_id UUID NOT NULL,
+	CONSTRAINT fk_rt
+      FOREIGN KEY(rt_id) 
+	  REFERENCES rentals(id)
+	  ON DELETE cascade,
+    name VARCHAR(255) NOT NULL,
+    price FLOAT NOT NULL,
+    description VARCHAR(25565),
+    availability BOOLEAN DEFAULT true
+);
+
+CREATE TABLE RENTALS_REVIEW (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    rt_id UUID NOT NULL,
+	CONSTRAINT fk_rt
+      FOREIGN KEY(rt_id) 
+	  REFERENCES rentals(id)
+	  ON DELETE cascade,
+    user_id VARCHAR(255) NOT NULL,
+    review VARCHAR(255),
+    rating INTEGER
+);
+
 drop table if exists CHAT_ROOM CASCADE;
 drop table if exists CHAT_MESSAGE CASCADE;
 

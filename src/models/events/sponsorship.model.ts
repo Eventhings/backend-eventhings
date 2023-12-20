@@ -1,12 +1,11 @@
-import { EventsData, Reviews, SocialMedia } from "../common.model";
+import { EventsData, Reviews} from "../common.model";
 
-export type GetSpnonsorshipDetailData = {
-	social_media: SocialMedia[];
+export type GetSponsorshipDetailData = {
 	reviews: Reviews[];
 } & EventsData;
 
 export type UpdateCreateSponsorshipBody = Exclude<
-	GetSpnonsorshipDetailData,
+	GetSponsorshipDetailData,
 	[
 		"created_by",
 		"id",

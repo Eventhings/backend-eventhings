@@ -1,8 +1,3 @@
-export type SocialMedia = {
-	social_media: string;
-	link: string;
-};
-
 export type Reviews = {
 	user_id: string;
 	rating: number;
@@ -57,4 +52,5 @@ export type EventsFilter = {
 	created_by: string;
 	fees: "paid" | "free";
 	service_type: ServiceType;
+	location: string;
 };

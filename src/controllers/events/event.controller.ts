@@ -15,7 +15,7 @@ export const getAllEventService = async ({
 	sort_by: string;
 	sort_method: string;
 }) => {
-	//! TODO: TAMBAHIN RENTALS
+
 	let query_mp = `
     SELECT
         'media_partner' AS service_type,
@@ -44,6 +44,21 @@ export const getAllEventService = async ({
     WHERE 1 = 1
     `;
 
+	let query_rt = `
+    SELECT
+        'rentals' AS service_type,
+        rt.*,
+        AVG(rtr.rating) as average_rating,
+        COALESCE(MIN(rtr.price), 0) AS min_price
+    FROM
+        RENTALS rt
+    LEFT JOIN
+        RENTALS_REVIEW rtr ON rt.id = rtr.rt_id
+    LEFT JOIN
+        RENTALS_PACKAGE rtp ON rt.id = rtp.rt_id
+    WHERE 1 = 1
+	`;
+
 	const queryParams = [];
 
 	Object.keys(filter).map((val) => {
@@ -58,9 +73,11 @@ export const getAllEventService = async ({
 			} else if (val == "service_type") {
 				query_mp += ` AND 'media_partner' = $${queryParams.length + 1}`;
 				query_sp += ` AND 'sponsorship' = $${queryParams.length + 1}`;
+				query_rt += ` AND 'rentals' = $${queryParams.length + 1}`;
 			} else {
 				query_mp += ` AND ${val} = $${queryParams.length + 1}`;
 				query_sp += ` AND ${val} = $${queryParams.length + 1}`;
+				query_rt += ` AND ${val} = $${queryParams.length + 1}`;
 			}
 			queryParams.push(filter[val as keyof EventsFilter]);
 		}
@@ -68,8 +85,9 @@ export const getAllEventService = async ({
 
 	query_mp += ` GROUP BY mp.id`;
 	query_sp += ` GROUP BY sp.id`;
+	query_rt += ` GROUP BY rt.id`;
 
-	let query_all = `${query_sp} UNION ALL ${query_mp}`;
+	let query_all = `${query_sp} UNION ALL ${query_mp} UNION ALL ${query_rt}`;
 
 	if (sort_by && sort_method) {
 		const allowedSortMethods = ["asc", "desc"];
