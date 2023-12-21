@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Response } from "express";
 import * as admin from "firebase-admin";
 import { dbQuery } from "../../db";
@@ -9,7 +10,12 @@ import {
 	UserRole,
 } from "../../models";
 import { uploadFile } from "../../service";
-import { ApiError, ErrorCodes, partiallyObscureEmail } from "../../utils";
+import {
+	ApiError,
+	ErrorCodes,
+	ML_API_URL,
+	partiallyObscureEmail,
+} from "../../utils";
 
 export const getAllRentals = async ({
 	limit,
@@ -140,8 +146,17 @@ export const getRentalsById = async ({ id }: { id: string }) => {
 	});
 	const user_list = (await admin.auth().getUsers(user_id_list)).users;
 
+	const sentiment = await axios.get(
+		`${ML_API_URL}/nlpe/collective/rentals/${id}`
+	);
+
+	const sorted_sentiment = Object.entries(sentiment.data.data.emotion_portion)
+		.sort(([, a], [, b]) => (b as number) - (a as number))
+		.reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+
 	return {
 		...rentals.rows[0],
+		review_sentiment: Object.keys(sorted_sentiment)[0] ?? null,
 		packages: [...rentals_package.rows],
 		reviews: [
 			...rentals_review.rows.map((review: any) => {

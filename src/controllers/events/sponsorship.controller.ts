@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Response } from "express";
 import * as admin from "firebase-admin";
 import { dbQuery } from "../../db";
@@ -8,7 +9,12 @@ import {
 	UserRole,
 } from "../../models";
 import { uploadFile } from "../../service";
-import { ApiError, ErrorCodes, partiallyObscureEmail } from "../../utils";
+import {
+	ApiError,
+	ErrorCodes,
+	ML_API_URL,
+	partiallyObscureEmail,
+} from "../../utils";
 
 export const getAllSponsorship = async ({
 	limit,
@@ -115,10 +121,19 @@ export const getSponsorshipById = async ({ id }: { id: string }) => {
 			uid: val.user_id,
 		};
 	});
+
 	const user_list = (await admin.auth().getUsers(user_id_list)).users;
+
+	const sentiment = await axios.get(
+		`${ML_API_URL}/nlpe/collective/sponsorship/${id}`
+	);
+	const sorted_sentiment = Object.entries(sentiment.data.data.emotion_portion)
+		.sort(([, a], [, b]) => (b as number) - (a as number))
+		.reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
 
 	return {
 		...sponsorship.rows[0],
+		review_sentiment: Object.keys(sorted_sentiment)[0] ?? null,
 		reviews: [
 			...sponsorship_review.rows.map((review: any) => {
 				const user_detail = user_list.find(

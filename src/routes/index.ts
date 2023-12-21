@@ -2,6 +2,7 @@ import express from "express";
 import { ApiError, ErrorCodes, eventhingsResponse } from "../utils";
 import chatRoutes from "./chat";
 import eventRoutes from "./event";
+import mlRoutes from "./ml";
 import purchaseRoute from "./purchase";
 import savedRoute from "./saved";
 import userRoutes from "./user.route";
@@ -28,6 +29,10 @@ const defaultRoutes = [
 	{
 		path: "/saved",
 		route: savedRoute,
+	},
+	{
+		path: "/ml",
+		route: mlRoutes,
 	},
 ];
 
