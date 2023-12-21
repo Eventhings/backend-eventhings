@@ -79,8 +79,9 @@ pnpm run dev
 ## Microservice Diagram
 Microservice Diagram Flow of the Backend Service
 <p align="center">
-   <img width="850" alt="image" src="https://github.com/Eventhings/backend-eventhings/assets/28957554/de1ce91d-8b2a-4f42-9470-52e2d376b9d6">
+   <img width="850" alt="image" src="https://github.com/Eventhings/backend-eventhings/assets/28957554/83f81806-2b4a-4a3d-9314-625b9cdb1b75">
 </p>
+
 
 ## Architecture Design on GCP
 Google Cloud Platform Architecture Design
