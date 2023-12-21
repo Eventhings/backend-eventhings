@@ -14,6 +14,7 @@ import {
 	ApiError,
 	ErrorCodes,
 	ML_API_URL,
+	mapSentiment,
 	partiallyObscureEmail,
 } from "../../utils";
 
@@ -156,7 +157,8 @@ export const getMediaPartnerById = async ({ id }: { id: string }) => {
 
 	return {
 		...media_partner.rows[0],
-		review_sentiment: Object.keys(sorted_sentiment)[0] ?? null,
+		review_sentiment:
+			mapSentiment(Object.keys(sorted_sentiment)[0]) ?? null,
 		packages: [...media_partner_package.rows],
 		reviews: [
 			...media_partner_review.rows.map((review: any) => {

@@ -13,6 +13,7 @@ import {
 	ApiError,
 	ErrorCodes,
 	ML_API_URL,
+	mapSentiment,
 	partiallyObscureEmail,
 } from "../../utils";
 
@@ -133,7 +134,8 @@ export const getSponsorshipById = async ({ id }: { id: string }) => {
 
 	return {
 		...sponsorship.rows[0],
-		review_sentiment: Object.keys(sorted_sentiment)[0] ?? null,
+		review_sentiment:
+			mapSentiment(Object.keys(sorted_sentiment)[0]) ?? null,
 		reviews: [
 			...sponsorship_review.rows.map((review: any) => {
 				const user_detail = user_list.find(

@@ -28,5 +28,22 @@ export const partiallyObscureEmail = (email: string) => {
 	return email;
 };
 
+export const mapSentiment = (sentiment: string) => {
+	switch (sentiment) {
+		case "Anger":
+			return "PEOPLE MOSTLY ANGRY😠";
+		case "Fear":
+			return "PEOPLE MOSTLY FEAR😱";
+		case "Happy":
+			return "PEOPLE MOSTLY HAPPY😃";
+		case "Love":
+			return "PEOPLE MOSTLY LOVE THIS😍";
+		case "Sadness":
+			return "PEOPLE MOSTLY FEEL SAD😔";
+		default:
+			return null;
+	}
+};
+
 export const ML_API_URL =
 	"https://ml-eventhings-api-southeast2-w4t7ews3vq-et.a.run.app";
