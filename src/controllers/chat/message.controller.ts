@@ -20,44 +20,77 @@ export const getAllChatRoomMessages = async ({
 		room_id,
 	]);
 
+	if (room.rows.length === 0) {
+		throw new ApiError({
+			code: ErrorCodes.badRequestErrorCode,
+			message: `There are no room with id ${room_id}`,
+		});
+	}
+
 	if (
-		room.rows[0].business_id === user_id ||
+		room.rows[0].business_owner_id === user_id ||
 		room.rows[0].customer_id === user_id
 	) {
-		const user_list = (
-			await admin
-				.auth()
-				.getUsers([
-					{ uid: room.rows[0].business_id },
-					{ uid: room.rows[0].customer_id },
-				])
-		).users;
+		const user_data = await admin.auth().getUser(room.rows[0].customer_id);
 
+		const business_data = await dbQuery(
+			`
+			select * from 
+			(SELECT
+				'media_partner' AS service_type,
+				mp.name,
+				mp.email,
+				mp.created_by,
+				mp.logo_url
+			FROM
+				MEDIA_PARTNER mp
+			union all 
+			SELECT
+				'sponsorship' AS service_type,
+				sp.name,
+				sp.email,
+				sp.created_by,
+				sp.logo_url
+			FROM
+				SPONSORSHIP sp
+			union all 
+			SELECT
+				'rentals' AS service_type,
+				rt.name,
+				rt.email,
+				rt.created_by,
+				rt.logo_url
+			FROM
+				RENTALS rt) 
+			where created_by = $1
+			`,
+			[room.rows[0].business_owner_id]
+		);
 		const messages = await dbQuery(
 			`SELECT id, created_at, user_id, message FROM CHAT_MESSAGE WHERE room_id = $1`,
 			[room_id]
 		);
 
 		return {
-			business_detail: {
-				id: room.rows[0].business_id,
-				email: user_list[0].email,
-				username: user_list[0].displayName ?? null,
-			},
-			customer_detail: {
-				id: room.rows[0].customer_id,
-				email: user_list[1].email,
-				username: user_list[1].displayName ?? null,
-			},
 			messages: [
 				...messages.rows.map((message: any) => {
-					const user = user_list.find(
-						(user) => message.user_id === user.uid
-					);
+					const sender_data =
+						message.user_id === room.rows[0].business_owner_id
+							? {
+									username:
+										business_data.rows[0]?.name ?? null,
+									email: business_data.rows[0]?.email ?? null,
+									profile_img:
+										business_data.rows[0]?.logo_url ?? null,
+							  }
+							: {
+									username: user_data?.displayName ?? null,
+									email: user_data?.email ?? null,
+									profile_img: user_data.photoURL ?? null,
+							  };
 					return {
 						...message,
-						username: user?.displayName,
-						email: user?.email,
+						sender: sender_data,
 					};
 				}),
 			],
