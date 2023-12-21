@@ -88,5 +88,5 @@ Microservice Diagram Flow of the Backend Service
 ## Architecture Design on GCP
 Google Cloud Platform Architecture Design
 <p align="center">
-   <img width="850" src="https://github.com/Eventhings/backend-eventhings/assets/28957554/17139a91-34f4-4dbf-89a6-3dd698c8a338">
+   <img width="850" alt="image" src="https://github.com/Eventhings/backend-eventhings/assets/28957554/fcca8f94-0b22-4538-9b23-bd1ed5c76184">
 </p>
