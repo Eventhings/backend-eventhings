@@ -70,9 +70,6 @@ or
 pnpm run dev
 ```
 7. Enjoy the RestAPI
-   
-## API Documentation
-Postman Collection: https://documenter.getpostman.com/view/18445120/2s9Ykkgiqj
 
 ## ERD Design
 <p align="center">
