@@ -125,17 +125,23 @@ export const getSponsorshipById = async ({ id }: { id: string }) => {
 
 	const user_list = (await admin.auth().getUsers(user_id_list)).users;
 
-	const sentiment = await axios.get(
-		`${ML_API_URL}/nlpe/collective/sponsorship/${id}`
-	);
-	const sorted_sentiment = Object.entries(sentiment.data.data.emotion_portion)
-		.sort(([, a], [, b]) => (b as number) - (a as number))
-		.reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+	let sentiment: any;
+	let sorted_sentiment: any;
+	if (sponsorship_review.rows.length !== 0) {
+		sentiment =
+			(await axios.get(
+				`${ML_API_URL}/nlpe/collective/sponsorship/${id}`
+			)) ?? null;
+		sorted_sentiment = Object.entries(sentiment.data.data.emotion_portion)
+			.sort(([, a], [, b]) => (b as number) - (a as number))
+			.reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+	}
 
 	return {
 		...sponsorship.rows[0],
-		review_sentiment:
-			mapSentiment(Object.keys(sorted_sentiment)[0]) ?? null,
+		review_sentiment: sorted_sentiment
+			? mapSentiment(Object.keys(sorted_sentiment)[0])
+			: null,
 		reviews: [
 			...sponsorship_review.rows.map((review: any) => {
 				const user_detail = user_list.find(

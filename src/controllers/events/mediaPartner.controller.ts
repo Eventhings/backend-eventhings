@@ -147,18 +147,23 @@ export const getMediaPartnerById = async ({ id }: { id: string }) => {
 
 	const user_list = (await admin.auth().getUsers(user_id_list)).users;
 
-	const sentiment = await axios.get(
-		`${ML_API_URL}/nlpe/collective/media_partner/${id}`
-	);
-
-	const sorted_sentiment = Object.entries(sentiment.data.data.emotion_portion)
-		.sort(([, a], [, b]) => (b as number) - (a as number))
-		.reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+	let sentiment: any;
+	let sorted_sentiment: any;
+	if (media_partner_review.rows.length !== 0) {
+		sentiment =
+			(await axios.get(
+				`${ML_API_URL}/nlpe/collective/media_partner/${id}`
+			)) ?? null;
+		sorted_sentiment = Object.entries(sentiment.data.data.emotion_portion)
+			.sort(([, a], [, b]) => (b as number) - (a as number))
+			.reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+	}
 
 	return {
 		...media_partner.rows[0],
-		review_sentiment:
-			mapSentiment(Object.keys(sorted_sentiment)[0]) ?? null,
+		review_sentiment: sorted_sentiment
+			? mapSentiment(Object.keys(sorted_sentiment)[0])
+			: null,
 		packages: [...media_partner_package.rows],
 		reviews: [
 			...media_partner_review.rows.map((review: any) => {
